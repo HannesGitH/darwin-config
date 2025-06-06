@@ -99,6 +99,7 @@
       nix.settings.experimental-features = "nix-command flakes";
 
       nix.settings.trusted-users = [ "blingmember" ];
+      system.primaryUser = "blingmember";
 
       # Create /etc/zshrc that loads the nix-darwin environment.
       programs.zsh.enable = true;  # default shell on catalina

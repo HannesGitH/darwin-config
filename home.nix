@@ -21,7 +21,7 @@
       nix-direnv.enable = true;
     };
 
-    programs.thefuck = {
+    programs.pay-respects = {
       enable = true;
     };
 
