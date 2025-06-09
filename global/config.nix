@@ -45,13 +45,13 @@
             "gh" 
             # "ruby" 
             # "font-fira-code"
-            "wireshark"
+            # "wireshark"
           ];
           casks = [
             "displaylink"
             "raycast"
-            "visual-studio-code"
-            "darktable"
+            # "visual-studio-code"
+            "cursor"
           ];
       };
 
