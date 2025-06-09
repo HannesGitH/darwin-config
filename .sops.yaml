@@ -1,6 +1,6 @@
 keys:
   - &admin_bling_hannes age1jvt938vlqcskd5f0ud0q5fpnaf6pnjxhen56ectkhf04y9guev6sg7ezsh
-  - &device_vm1_hannes age1lyr2xfnv00cfra80umz0undpvmvwpaetypxkc6h6m6j6750chcxs6gw53e
+  - &device_vm1_hannes age19mhz5c440x8avdn3rrac65vajxkv6h7vjg2zkqucze55x5248uaque5xq7
 creation_rules:
   - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
     key_groups:
