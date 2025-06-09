@@ -129,11 +129,11 @@
         "rev": "cfb6b09b59e161153f620529a9228f2c447138bb",
         "revCount": 322,
         "type": "git",
-        "url": "ssh://git@codeberg.org/HannesGitH/mergiraf"
+        "url": "https://codeberg.org/HannesGitH/mergiraf"
       },
       "original": {
         "type": "git",
-        "url": "ssh://git@codeberg.org/HannesGitH/mergiraf"
+        "url": "https://codeberg.org/HannesGitH/mergiraf"
       }
     },
     "nix-darwin": {

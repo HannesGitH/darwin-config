@@ -13,7 +13,7 @@
 
     prismLauncher.url = "github:HannesGitH/prismlauncherc";
     nix-search-cli.url = "github:peterldowns/nix-search-cli";
-    mergiraf.url = "git+ssh://git@codeberg.org/HannesGitH/mergiraf";
+    mergiraf.url = "git+https://codeberg.org/HannesGitH/mergiraf";
 
     # secrets management
     sops-nix.url = "github:Mic92/sops-nix";
