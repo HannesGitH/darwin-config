@@ -54,6 +54,7 @@
             "raycast"
             # "visual-studio-code"
             "cursor"
+            "android-studio"
           ];
       };
 
