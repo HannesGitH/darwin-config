@@ -88,7 +88,7 @@
           tilesize = 20;
           largesize = 50;
           show-process-indicators = true;
-          persistent-apps = [ "/Applications/Firefox.app" "/Applications/Visual\ Studio\ Code.app" ];
+          persistent-apps = [ "/Applications/Nix\ Apps/Firefox.app" "/Applications/Cursor.app" ];
         };
         NSGlobalDomain = {
           AppleInterfaceStyle = "Dark";
