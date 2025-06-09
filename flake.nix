@@ -19,7 +19,7 @@
     sops-nix.url = "github:Mic92/sops-nix";
   };
 
-  outputs = inputs@{ self, nix-darwin, nixpkgs, home-manager, ... }:
+  outputs = { self, nix-darwin, nixpkgs, home-manager, ... }@inputs:
   let 
     secretsModules = [
       # nix-shell -p gnupg -p ssh-to-age --run "ssh-to-age -private-key -i $HOME/.ssh/id_ed25519" > $HOME/Library/Application\ Support/sops/age/keys.txt
@@ -62,6 +62,7 @@
     darwinConfigurations = {
       # HANNES config
       "maccaroni" = nix-darwin.lib.darwinSystem {
+        specialArgs = { inherit inputs; };
         modules = globalModules ++ [
           {
             home-manager.users."blingmember" = import ./specifics/hannes/home.nix;
@@ -70,6 +71,7 @@
       };
       # general config
       "blingi" = nix-darwin.lib.darwinSystem {
+        specialArgs = { inherit inputs; };
         modules = globalModules;
       };
     };
