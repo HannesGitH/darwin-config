@@ -6,9 +6,6 @@
 
       environment.variables.LANG = "en_GB.UTF-8";
 
-      nixpkgs.overlays = [ inputs.prismLauncher.overlays.default ];
-      # List packages installed in system profile. To search by name, run:
-      # $ nix-env -qaP | grep wget
       environment.systemPackages = with pkgs;
         [ 
           libiconv
@@ -19,7 +16,6 @@
           nil
           autojump
           go
-          prismlauncher
           inputs.nix-search-cli.packages.${pkgs.system}.default
           gimp
           bundletool

@@ -22,6 +22,7 @@
   outputs = { self, nix-darwin, nixpkgs, home-manager, ... }@inputs:
   let 
     secretsModules = [
+      # nix-shell -p gnupg -p ssh-to-age --run "ssh-to-age -i $HOME/.ssh/id_ed25519.pub"
       # nix-shell -p gnupg -p ssh-to-age --run "ssh-to-age -private-key -i $HOME/.ssh/id_ed25519" > $HOME/Library/Application\ Support/sops/age/keys.txt
       inputs.sops-nix.darwinModules.sops
       {
@@ -67,6 +68,7 @@
           {
             home-manager.users."blingmember" = import ./specifics/hannes/home.nix;
           }
+          ./specifics/hannes/config.nix
         ];
       };
       # general config
