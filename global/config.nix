@@ -21,6 +21,8 @@
           bundletool
           gnupg
 
+          firefox
+
           (inputs.mergiraf.packages.${pkgs.system}.default.overrideAttrs (old: { doCheck = false; doInstallCheck = false; }))
         ];
 
@@ -48,7 +50,7 @@
             # "wireshark"
           ];
           casks = [
-            "displaylink"
+            # "displaylink"
             "raycast"
             # "visual-studio-code"
             "cursor"
