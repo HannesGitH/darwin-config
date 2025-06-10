@@ -37,6 +37,13 @@
             mode = "0600";
             path = "/Users/blingmember/.netrc";
           };
+          "keyAndroid.jks" = {
+            format = "binary";
+            sopsFile = ./secrets/keyAndroid.jks;
+            owner = "blingmember";
+            mode = "0644";
+            path = "/Users/blingmember/keyAndroid.jks";
+          };
         };
       }
     ];

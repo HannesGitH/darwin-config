@@ -7,3 +7,8 @@ creation_rules:
     - age:
       - *admin_bling_hannes
       - *device_vm1_hannes
+  - path_regex: .*
+    key_groups:
+    - age:
+      - *admin_bling_hannes
+      - *device_vm1_hannes
