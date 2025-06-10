@@ -68,7 +68,7 @@
           };
         }
       ];
-      initExtra = ''
+      initContent = ''
         eval "$(/opt/homebrew/bin/brew shellenv)"
         export PATH="$HOME/fvm/default/bin:$PATH"
 
