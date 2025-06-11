@@ -76,6 +76,8 @@
 
         # cargo (installed via rustup)
         . "$HOME/.cargo/env"
+
+        export JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home"
       '';
     };
     programs.git = {
