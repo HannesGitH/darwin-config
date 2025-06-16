@@ -38,7 +38,7 @@
         fb="fvm dart run build_runner build --delete-conflicting-outputs";
         fg="fvm flutter pub get";
         fcl="fvm flutter clean && rm -rf ~/Library/Developer/Xcode/DerivedData && fvm flutter pub get && rm -rf ./build/app/outputs/apk";
-        fclh="rm ios/Podfile.lock && rm -rf ios/Pods && cd ios && pod install --repo-update && cd .. && fcl";
+        fclh="rm ios/Podfile.lock && rm -rf ios/Pods && pod install --repo-update --project-directory=ios && fcl";
 
         editzshrc="code $HOME/.zshrc";
         gbrclean="git branch | xargs -I {} git branch -d {}";
