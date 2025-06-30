@@ -84,6 +84,7 @@
       enable = true;
       lfs.enable = true;
       extraConfig = {
+        push.autoSetupRemote = true;
         "mergetool \"vscode\"" = {
           cmd = "code --wait $MERGED";
           trustExitCode = true;
