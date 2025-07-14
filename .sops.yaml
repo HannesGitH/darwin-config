@@ -6,6 +6,11 @@ keys:
   - &device_hannes_m1 age1mljxyz8dfamwpnjjt8w2atq77cpk9e3cpjryrrt6mfwk0ulmsausufencr
   - &device_hannes_m1_userspace age120pvmf6npprc4z7rhvr643dvkxp62ksrvmt6axyyk9cctagfwy8qsprdlj
 creation_rules:
+  - path_regex: secrets/hannes/*
+    key_groups:
+    - age:
+      - *device_hannes_m1_userspace
+      - *device_hannes_m1
   - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
     key_groups:
     - age:
