@@ -3,7 +3,7 @@
 {
     programs.git = {
       userName = "Hannes";
-      userEmail = "33062605+HannesGitH@users.noreply.github.com";
+      userEmail = "github@h-h.win";
 
       extraConfig = {
         commit.gpgsign = true;
