@@ -3,6 +3,8 @@ keys:
   - &device_vm1_hannes age19mhz5c440x8avdn3rrac65vajxkv6h7vjg2zkqucze55x5248uaque5xq7
   - &device_dominik age1rhh2cddzk7q4zj5wncxpyvqk0g805p9zm7t5lxy7aefw5jglte0sd4rxhq
   - &device_basti_root age18nhucgr7rhqeg0wtelxlncmp8zqqejxpnzjcea83zexf5h6lufzqnjzp4r
+  - &device_hannes_m1 age1mljxyz8dfamwpnjjt8w2atq77cpk9e3cpjryrrt6mfwk0ulmsausufencr
+  - &device_hannes_m1_userspace age120pvmf6npprc4z7rhvr643dvkxp62ksrvmt6axyyk9cctagfwy8qsprdlj
 creation_rules:
   - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
     key_groups:
@@ -11,6 +13,8 @@ creation_rules:
       - *device_vm1_hannes
       - *device_dominik
       - *device_basti_root
+      - *device_hannes_m1
+      - *device_hannes_m1_userspace
   - path_regex: .*
     key_groups:
     - age:
@@ -18,3 +22,5 @@ creation_rules:
       - *device_vm1_hannes
       - *device_dominik
       - *device_basti_root
+      - *device_hannes_m1
+      - *device_hannes_m1_userspace
