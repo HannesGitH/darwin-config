@@ -24,7 +24,7 @@
   };
 
   launchd.daemons."frosted-repos" =  let dir_to_watch = "/Users/blingmember/Repos/"; in {
-    command = "${inputs.frosted}/bin/frosted -d ${dir_to_watch} -i 'localization.dart'";
+    command = "${inputs.frosted.packages.${pkgs.system}.default}/bin/frosted -d ${dir_to_watch} -i 'localization.dart'";
     serviceConfig = {
       RunAtLoad = true;
       KeepAlive = true;
