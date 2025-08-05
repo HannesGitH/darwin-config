@@ -22,4 +22,14 @@
       "displaylink"
     ];
   };
+
+  launchd.daemons."frosted-repos" =  let dir_to_watch = "/Users/blingmember/Repos/"; in {
+    command = "${inputs.frosted}/bin/frosted -d ${dir_to_watch} -i 'localization.dart'";
+    serviceConfig = {
+      RunAtLoad = true;
+      KeepAlive = true;
+      StandardErrorPath = "/Users/blingmember/frosted-repos.log";
+      StandardOutPath = "/Users/blingmember/frosted-repos.log";
+    };
+  };
 }

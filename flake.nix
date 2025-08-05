@@ -15,6 +15,8 @@
     nix-search-cli.url = "github:peterldowns/nix-search-cli";
     mergiraf.url = "git+https://codeberg.org/HannesGitH/mergiraf";
 
+    frosted.url = "github:HannesGitH/frosted";
+
     # secrets management
     sops-nix.url = "github:Mic92/sops-nix";
   };
