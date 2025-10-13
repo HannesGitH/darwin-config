@@ -51,7 +51,7 @@
             # "ruby" 
             # "font-fira-code"
             # "wireshark"
-            "ideviceinstaller" # needed for flutter patrol tests
+            # "ideviceinstaller" # needed for flutter patrol tests
           ];
           casks = [
             # "displaylink"
