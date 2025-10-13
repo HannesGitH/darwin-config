@@ -17,7 +17,6 @@
           autojump
           go
           inputs.nix-search-cli.packages.${pkgs.system}.default
-          gimp
           bundletool
           gnupg
 
