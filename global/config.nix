@@ -27,7 +27,7 @@
 
       system.activationScripts = {
         extraActivation.text = ''
-           ${pkgs.defaultbrowser}/bin/defaultbrowser firefox
+          # ${pkgs.defaultbrowser}/bin/defaultbrowser firefox
           ln -sf "${pkgs.jdk8}/zulu-8.jdk" "/Library/Java/JavaVirtualMachines/"
           ln -sf "${pkgs.jdk11}/zulu-11.jdk" "/Library/Java/JavaVirtualMachines/"
           ln -sf "${pkgs.jdk17}/zulu-17.jdk" "/Library/Java/JavaVirtualMachines/"
