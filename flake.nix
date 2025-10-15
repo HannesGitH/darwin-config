@@ -9,7 +9,7 @@
     nix-index-database.url = "github:nix-community/nix-index-database";
     nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
 
-    home-manager.url = "github:nix-community/home-manager";
+    home-manager.url = "github:nix-community/home-manager/release-25.05";
 
     prismLauncher.url = "github:HannesGitH/prismlauncherc";
     nix-search-cli.url = "github:peterldowns/nix-search-cli";
