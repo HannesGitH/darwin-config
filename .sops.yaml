@@ -5,6 +5,7 @@ keys:
   - &device_basti_root age18nhucgr7rhqeg0wtelxlncmp8zqqejxpnzjcea83zexf5h6lufzqnjzp4r
   - &device_hannes_m1 age1mljxyz8dfamwpnjjt8w2atq77cpk9e3cpjryrrt6mfwk0ulmsausufencr
   - &device_hannes_m1_userspace age120pvmf6npprc4z7rhvr643dvkxp62ksrvmt6axyyk9cctagfwy8qsprdlj
+  - &device_hannes_air_cursorbook age10yavrraclt2a5mdq53kz48q3p0jpyp9rra487yamkvq6xx6qpgts34y8ft
   - &device_david_user age1kn8x9gl4lz89mzldkj0g7jck5rzzwkgksakqpd25xyt4ce06r5dsqcv7h5
   - &device_david_root age16xwwdr5765pmqr9v3ns7eenuy7uj65njvkw8cwsncu2dk0f4ypjqxxjpy0
 creation_rules:
@@ -17,6 +18,7 @@ creation_rules:
     key_groups:
     - age:
       - *admin_bling_hannes
+      - *device_hannes_air_cursorbook
       - *device_vm1_hannes
       - *device_dominik
       - *device_basti_root
@@ -28,6 +30,7 @@ creation_rules:
     key_groups:
     - age:
       - *admin_bling_hannes
+      - *device_hannes_air_cursorbook
       - *device_vm1_hannes
       - *device_dominik
       - *device_basti_root
