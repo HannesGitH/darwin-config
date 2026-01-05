@@ -89,11 +89,11 @@
       extraConfig = {
         push.autoSetupRemote = true;
         "mergetool \"vscode\"" = {
-          cmd = "code --wait $MERGED";
+          cmd = "code --wait --merge $REMOTE $LOCAL $BASE $MERGED";
           trustExitCode = true;
         };
         "mergetool \"vscursor\"" = {
-          cmd = "cursor --wait $MERGED";
+          cmd = "cursor --wait --merge $REMOTE $LOCAL $BASE $MERGED";
           trustExitCode = true;
         };
         # on a new machine, run `mergiraf languages --gitattributes >> ~/.gitattributes`
