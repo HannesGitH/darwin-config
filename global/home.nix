@@ -35,7 +35,7 @@
 
         fflutter = "fvm flutter";
         
-        fb="fvm dart run build_runner build --delete-conflicting-outputs";
+        fb="fvm flutter run build_runner build --delete-conflicting-outputs";
         fg="fvm flutter pub get";
         fcl="fvm flutter clean && rm -rf ~/Library/Developer/Xcode/DerivedData && fvm flutter pub get && rm -rf ./build/app/outputs/apk";
         fclh="rm ios/Podfile.lock && rm -rf ios/Pods && pod install --repo-update --project-directory=ios && fcl";
