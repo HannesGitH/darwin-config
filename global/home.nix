@@ -96,6 +96,7 @@
       enable = true;
       lfs.enable = true;
       extraConfig = {
+        init.defaultBranch = "main";
         push.autoSetupRemote = true;
         "mergetool \"vscode\"" = {
           cmd = "code --wait --merge $REMOTE $LOCAL $BASE $MERGED";
