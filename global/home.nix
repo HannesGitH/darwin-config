@@ -45,7 +45,7 @@
         # pod="arch -x86_64 pod";
 
         gmud="git fetch upstream && git merge upstream/dev || git mergetool";
-        gnew="g fetch upstream && gsw dev && g pull upstream dev && gsw -c";
+        gnew="echo 'deprecated, use gneu'; gneu"; # defined below
       };
       #histSize = 10000;
       #histFile = "$HOME/.zsh_history";
@@ -81,6 +81,15 @@
         export ANDROID_HOME="/Users/blingmember/Library/Android/sdk"
         export PATH="$PATH:$ANDROID_HOME/tools"
         export PATH="$PATH:$ANDROID_HOME/platform-tools"
+
+        # things that are to hefty for alias :D
+
+        gneu() {
+          gsw -c "$1" upstream/dev --no-track;
+        }
+        gneo() {
+          gsw -c "$1" origin/dev --no-track;
+        }
       '';
     };
     programs.git = {
