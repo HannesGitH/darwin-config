@@ -55,7 +55,7 @@
           casks = [
             # "displaylink"
             "raycast"
-            # "visual-studio-code"
+            "visual-studio-code"
             "cursor"
             "android-studio"
           ];
