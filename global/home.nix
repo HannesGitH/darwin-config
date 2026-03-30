@@ -85,9 +85,11 @@
         # things that are to hefty for alias :D
 
         gneu() {
+          g fetch upstream;
           gsw -c "$1" upstream/dev --no-track;
         }
         gneo() {
+          g fetch origin;
           gsw -c "$1" origin/dev --no-track;
         }
       '';
