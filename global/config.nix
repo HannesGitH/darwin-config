@@ -28,10 +28,10 @@
       system.activationScripts = {
         extraActivation.text = ''
           # ${pkgs.defaultbrowser}/bin/defaultbrowser firefox
-          ln -sf "${pkgs.jdk8}/zulu-8.jdk" "/Library/Java/JavaVirtualMachines/"
-          ln -sf "${pkgs.jdk11}/zulu-11.jdk" "/Library/Java/JavaVirtualMachines/"
-          ln -sf "${pkgs.jdk17}/zulu-17.jdk" "/Library/Java/JavaVirtualMachines/"
-          ln -sf "${pkgs.jdk21}/zulu-21.jdk" "/Library/Java/JavaVirtualMachines/"
+          ln -sfn "${pkgs.jdk8}/Library/Java/JavaVirtualMachines/zulu-8.jdk" "/Library/Java/JavaVirtualMachines/"
+          ln -sfn "${pkgs.jdk11}/Library/Java/JavaVirtualMachines/zulu-11.jdk" "/Library/Java/JavaVirtualMachines/"
+          ln -sfn "${pkgs.jdk17}/Library/Java/JavaVirtualMachines/zulu-17.jdk" "/Library/Java/JavaVirtualMachines/"
+          ln -sfn "${pkgs.jdk21}/Library/Java/JavaVirtualMachines/zulu-21.jdk" "/Library/Java/JavaVirtualMachines/"
         '';
       };
 
