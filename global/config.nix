@@ -71,6 +71,7 @@
             "cursor"
             "android-studio"
             "slack"
+            "1password"
           ];
       };
 
