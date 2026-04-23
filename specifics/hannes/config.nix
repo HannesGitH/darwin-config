@@ -20,7 +20,7 @@
   homebrew = {
     enable = true;
     casks = [
-      "displaylink"
+      # "displaylink"
     ];
   };
 
