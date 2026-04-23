@@ -28,10 +28,10 @@
       # nix-shell -p gnupg -p ssh-to-age --run "ssh-to-age -private-key -i $HOME/.ssh/id_ed25519" > $HOME/Library/Application\ Support/sops/age/keys.txt
       inputs.sops-nix.darwinModules.sops
       {
-        sops.defaultSopsFile = ./secrets/secrets2.yaml;
-        sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
+        # sops.defaultSopsFile = ./secrets/secrets2.yaml;
+        # sops.age.sshKeyPaths = [ "/etc/ssh/ssh_host_ed25519_key" ];
         # This is using an age key that is expected to already be in the filesystem
-        sops.age.keyFile = "/Users/blingmember/Library/Application Support/sops/age/keys.txt";
+        # sops.age.keyFile = "/Users/blingmember/Library/Application Support/sops/age/keys.txt";
         sops.age.generateKey = true;
         sops.secrets = {
           "keyAndroid.jks" = {
