@@ -34,11 +34,6 @@
         sops.age.keyFile = "/Users/blingmember/Library/Application Support/sops/age/keys.txt";
         sops.age.generateKey = true;
         sops.secrets = {
-          ".netrc" = {
-            owner = "blingmember";
-            mode = "0600";
-            path = "/Users/blingmember/.netrc";
-          };
           "keyAndroid.jks" = {
             format = "binary";
             sopsFile = ./secrets/keyAndroid.jks;
