@@ -20,6 +20,9 @@
           bundletool
           gnupg
 
+          kitty
+          btop
+
           firefox
 
           (inputs.mergiraf.packages.${pkgs.system}.default.overrideAttrs (old: { doCheck = false; doInstallCheck = false; }))
@@ -32,6 +35,15 @@
           ln -sfn "${pkgs.jdk11}/Library/Java/JavaVirtualMachines/zulu-11.jdk" "/Library/Java/JavaVirtualMachines/"
           ln -sfn "${pkgs.jdk17}/Library/Java/JavaVirtualMachines/zulu-17.jdk" "/Library/Java/JavaVirtualMachines/"
           ln -sfn "${pkgs.jdk21}/Library/Java/JavaVirtualMachines/zulu-21.jdk" "/Library/Java/JavaVirtualMachines/"
+        '';
+        # Reload system.defaults into the running session so changes
+        # (e.g. NSGlobalDomain.AppleInterfaceStyle) apply without logout.
+        # `postActivation` is the last stock hook and runs after `userDefaults`
+        # has written the plist. Since activation runs as root but
+        # `activateSettings -u` must run in the primary user's context,
+        # we drop privileges via `sudo -u`.
+        postActivation.text = ''
+          sudo -u blingmember /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
         '';
       };
 
@@ -58,6 +70,7 @@
             "visual-studio-code"
             "cursor"
             "android-studio"
+            "slack"
           ];
       };
 

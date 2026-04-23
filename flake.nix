@@ -29,7 +29,7 @@
       inputs.sops-nix.darwinModules.sops
       {
         # sops.defaultSopsFile = ./secrets/secrets2.yaml;
-        sops.age.sshKeyPaths = [ "/Users/blingmember/.ssh/id_ed25519.pub" ];
+        sops.age.sshKeyPaths = [ "/Users/blingmember/.ssh/id_ed25519" ];
         # This is using an age key that is expected to already be in the filesystem
         # sops.age.keyFile = "/Users/blingmember/Library/Application Support/sops/age/keys.txt";
         sops.age.generateKey = true;
