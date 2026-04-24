@@ -19,6 +19,11 @@
 
     # secrets management
     sops-nix.url = "github:Mic92/sops-nix";
+
+    zen-browser = {
+      url = "github:youwen5/zen-browser-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = { self, nix-darwin, nixpkgs, home-manager, ... }@inputs:
