@@ -4,6 +4,18 @@
 
       nixpkgs.config.allowUnfree = true;
 
+      # direnv 2.37.1's `test-fish` is flaky on darwin and gets SIGKILL'd
+      # mid-build (`make: *** [GNUmakefile:150: test-fish] Killed: 9`).
+      # Skip its checks until upstream stabilises it.
+      nixpkgs.overlays = [
+        (final: prev: {
+          direnv = prev.direnv.overrideAttrs (old: {
+            doCheck = false;
+            doInstallCheck = false;
+          });
+        })
+      ];
+
       environment.variables.LANG = "en_GB.UTF-8";
 
       environment.systemPackages = with pkgs;
