@@ -44,35 +44,37 @@
           btop
 
           firefox
-          (pkgs.wrapFirefox
-            inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.zen-browser-unwrapped
-            {
-              # extraPrefs = lib.concatLines (
-              #   lib.mapAttrsToList (
-              #     name: value: ''lockPref(${lib.strings.toJSON name}, ${lib.strings.toJSON value});''
-              #   ) prefs
-              # );
 
-              extraPolicies = {
-                DisableTelemetry = true;
-                ExtensionSettings = builtins.listToAttrs [
-                  (extension "ublock-origin" "uBlock0@raymondhill.net")
-                ];
+          # unfortunately linux only rn
+          # (pkgs.wrapFirefox
+          #   inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.zen-browser-unwrapped
+          #   {
+          #     # extraPrefs = lib.concatLines (
+          #     #   lib.mapAttrsToList (
+          #     #     name: value: ''lockPref(${lib.strings.toJSON name}, ${lib.strings.toJSON value});''
+          #     #   ) prefs
+          #     # );
 
-                SearchEngines = {
-                  Default = "ddg";
-                  Add = [
-                    {
-                      Name = "noogle";
-                      URLTemplate = "https://noogle.dev/q?term={searchTerms}";
-                      IconURL = "https://noogle.dev/favicon.ico";
-                      Alias = "@ng";
-                    }
-                  ];
-                };
-              };
-            }
-          )
+          #     extraPolicies = {
+          #       DisableTelemetry = true;
+          #       ExtensionSettings = builtins.listToAttrs [
+          #         (extension "ublock-origin" "uBlock0@raymondhill.net")
+          #       ];
+
+          #       SearchEngines = {
+          #         Default = "ddg";
+          #         Add = [
+          #           {
+          #             Name = "noogle";
+          #             URLTemplate = "https://noogle.dev/q?term={searchTerms}";
+          #             IconURL = "https://noogle.dev/favicon.ico";
+          #             Alias = "@ng";
+          #           }
+          #         ];
+          #       };
+          #     };
+          #   }
+          # )
 
           (inputs.mergiraf.packages.${pkgs.system}.default.overrideAttrs (old: { doCheck = false; doInstallCheck = false; }))
         ];
@@ -168,6 +170,7 @@
         NSGlobalDomain = {
           AppleInterfaceStyle = "Dark";
           "com.apple.trackpad.scaling" = 2.0;
+          "com.apple.keyboard.fnState" = true;
         };
         finder = {
           AppleShowAllFiles = true;
