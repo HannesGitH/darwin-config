@@ -97,7 +97,7 @@
     programs.git = {
       enable = true;
       lfs.enable = true;
-      extraConfig = {
+      settings = {
         init.defaultBranch = "main";
         push.autoSetupRemote = true;
         "mergetool \"vscode\"" = {

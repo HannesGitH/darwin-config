@@ -9,7 +9,7 @@
       environment.systemPackages = with pkgs;
         [ 
           libiconv
-          libiconv-darwin
+          darwin.libiconv
           git
           git-lfs
           rename
