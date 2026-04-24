@@ -93,6 +93,10 @@
       nix.settings.trusted-users = [ "blingmember" ];
       system.primaryUser = "blingmember";
 
+      nix.settings.substituters = [
+          "https://nixos-cache-proxy.cofob.dev"
+        ];
+
       # Create /etc/zshrc that loads the nix-darwin environment.
       programs.zsh.enable = true;  # default shell on catalina
       # programs.fish.enable = true;
