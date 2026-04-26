@@ -19,15 +19,7 @@
       environment.variables.LANG = "en_GB.UTF-8";
 
       environment.systemPackages = with pkgs; 
-        let 
-          extension = shortId: guid: {
-            name = guid;
-            value = {
-              install_url = "https://addons.mozilla.org/en-US/firefox/downloads/latest/${shortId}/latest.xpi";
-              installation_mode = "normal_installed";
-            };
-          };
-        in [ 
+        [ 
           libiconv
           darwin.libiconv
           git
@@ -44,37 +36,6 @@
           btop
 
           firefox
-
-          # unfortunately linux only rn
-          # (pkgs.wrapFirefox
-          #   inputs.zen-browser.packages.${pkgs.stdenv.hostPlatform.system}.zen-browser-unwrapped
-          #   {
-          #     # extraPrefs = lib.concatLines (
-          #     #   lib.mapAttrsToList (
-          #     #     name: value: ''lockPref(${lib.strings.toJSON name}, ${lib.strings.toJSON value});''
-          #     #   ) prefs
-          #     # );
-
-          #     extraPolicies = {
-          #       DisableTelemetry = true;
-          #       ExtensionSettings = builtins.listToAttrs [
-          #         (extension "ublock-origin" "uBlock0@raymondhill.net")
-          #       ];
-
-          #       SearchEngines = {
-          #         Default = "ddg";
-          #         Add = [
-          #           {
-          #             Name = "noogle";
-          #             URLTemplate = "https://noogle.dev/q?term={searchTerms}";
-          #             IconURL = "https://noogle.dev/favicon.ico";
-          #             Alias = "@ng";
-          #           }
-          #         ];
-          #       };
-          #     };
-          #   }
-          # )
 
           (inputs.mergiraf.packages.${pkgs.system}.default.overrideAttrs (old: { doCheck = false; doInstallCheck = false; }))
         ];
