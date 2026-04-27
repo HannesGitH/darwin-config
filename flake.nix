@@ -80,6 +80,7 @@
             home-manager.users."blingmember" = import ./specifics/hannes/home.nix;
           }
           ./specifics/hannes/config.nix
+          ./specifics/backend/config.nix
         ];
       };
       # general config
