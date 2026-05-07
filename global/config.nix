@@ -1,4 +1,11 @@
 { pkgs, inputs, ... }:
+let
+  # Pull substituters / trusted public keys straight from upstream Zed's
+  # flake.nix (`nixConfig`) instead of duplicating them here. `inputs.zed`
+  # resolves to the locked flake source in /nix/store, and its top-level
+  # flake.nix is a plain attrset literal so we can `import` it directly.
+  zedNixConfig = (import (inputs.zed + "/flake.nix")).nixConfig;
+in
 {
 
   ids.gids.nixbld = 350;
@@ -109,6 +116,8 @@
   nix.settings.substituters = [
     "https://nixos-cache-proxy.cofob.dev"
   ];
+  nix.settings.extra-substituters = zedNixConfig.extra-substituters;
+  nix.settings.extra-trusted-public-keys = zedNixConfig.extra-trusted-public-keys;
 
   # Create /etc/zshrc that loads the nix-darwin environment.
   programs.zsh.enable = true; # default shell on catalina
