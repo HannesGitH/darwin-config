@@ -25,7 +25,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
-    zed.url = "github:zed-industries/zed";
+
+    # remove the last part if you always want the latest (unstable) version
+    zed.url = "github:zed-industries/zed/v1.1.6";
   };
 
   outputs =
