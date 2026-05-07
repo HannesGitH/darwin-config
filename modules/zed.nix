@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  inputs,
   ...
 }:
 
@@ -175,7 +176,6 @@ in
     mkIf cfg.enable {
       programs.zed-editor = {
         enable = true;
-
         extensions = lib.unique (
           [
             "ayu"
