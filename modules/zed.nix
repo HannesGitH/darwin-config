@@ -231,6 +231,69 @@ in
           };
           terminal.font_family = cfg.fontFamily;
 
+          # Empty proxy explicitly disables Zed's auto-detected proxy. Keep
+          # this set so corporate macOS proxy settings don't bleed into Zed.
+          proxy = "";
+
+          # ---- Layout / panels -------------------------------------------------
+          bottom_dock_layout = "contained";
+
+          git_panel = {
+            tree_view = true;
+            dock = "left";
+          };
+
+          outline_panel = {
+            default_width = 340.0;
+            dock = "left";
+          };
+
+          project_panel = {
+            hide_hidden = false;
+            hide_root = true;
+            git_status = true;
+            git_status_indicator = false;
+            diagnostic_badges = true;
+            bold_folder_labels = true;
+            default_width = 340.0;
+            dock = "left";
+          };
+
+          tabs = {
+            git_status = true;
+            file_icons = true;
+          };
+
+          tab_bar = {
+            show = true;
+          };
+
+          title_bar = {
+            show_branch_status_icon = true;
+          };
+
+          # ---- Agent (Zed AI) --------------------------------------------------
+          agent = {
+            max_content_width = 1000.0;
+            default_width = 540.0;
+            dock = "right";
+            favorite_models = [
+              {
+                provider = "anthropic";
+                model = "claude-opus-4-7-latest";
+                enable_thinking = true;
+                effort = "high";
+              }
+            ];
+            default_model = {
+              provider = "anthropic";
+              model = "claude-opus-4-7-latest";
+              enable_thinking = true;
+              effort = "high";
+            };
+            model_parameters = [ ];
+          };
+
           context_servers = contextServers;
         };
       };
