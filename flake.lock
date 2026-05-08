@@ -422,6 +422,22 @@
         "type": "github"
       }
     },
+    "nixpkgsunstable": {
+      "locked": {
+        "lastModified": 1777954456,
+        "narHash": "sha256-hGdgeU2Nk87RAuZyYjyDjFL6LK7dAZN5RE9+hrDTkDU=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "549bd84d6279f9852cae6225e372cc67fb91a4c1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "prismLauncher": {
       "inputs": {
         "nixpkgs": "nixpkgs_6",
@@ -486,6 +502,7 @@
         "nix-index-database": "nix-index-database",
         "nix-search-cli": "nix-search-cli",
         "nixpkgs": "nixpkgs_5",
+        "nixpkgsunstable": "nixpkgsunstable",
         "prismLauncher": "prismLauncher",
         "sops-nix": "sops-nix",
         "zed": "zed",

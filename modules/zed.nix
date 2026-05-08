@@ -28,6 +28,25 @@ in
   options.myModules.zed = {
     enable = mkEnableOption "Zed editor with darwin-config defaults";
 
+    channel = mkOption {
+      type = types.enum [
+        "stable"
+        "unstable"
+      ];
+      default = "stable";
+      description = ''
+        Which Zed package to install:
+
+        - `stable`: the `zed-editor` package from the `nixpkgsunstable` flake
+          input (i.e. whatever Zed release nixpkgs has shipped). This is the
+          better-tested option since the package goes through nixpkgs CI.
+        - `unstable`: the package built directly from the `zed` flake input
+          (`zed-industries/zed`, pinned by tag in `flake.nix`). Use this to
+          ride closer to upstream releases or to pin a specific Zed version
+          independently of nixpkgs.
+      '';
+    };
+
     extensions = {
       flutter = mkOption {
         type = types.bool;
@@ -175,6 +194,12 @@ in
     in
     mkIf cfg.enable {
       programs.zed-editor = {
+        package =
+          if cfg.channel == "unstable" then
+            # The upstream zed flake exposes the editor as `packages.<system>.default`.
+            inputs.zed.packages.${pkgs.system}.default
+          else
+            inputs.nixpkgsunstable.legacyPackages.${pkgs.system}.zed-editor;
         enable = true;
         extensions = lib.unique (
           [
