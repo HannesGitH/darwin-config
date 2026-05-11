@@ -25,24 +25,24 @@
   ];
 
   myModules.zed = {
-      enable = true;
-      extensions = {
-        flutter = true;
-        rust = true;
-        nix = true;
-      };
-      mcp = {
-        linear.enable = true;
-        dart = {
-          enable = true;
-          # Match the fvm-managed Dart SDK that's already on the user's
-          # zsh PATH (see initContent below); spelled out absolutely so
-          # Zed launched from Spotlight/Finder still resolves it.
-          command = "${config.home.homeDirectory}/fvm/default/bin/dart";
-        };
-        figma.enable = true;
-      };
+    enable = true;
+    extensions = {
+      flutter = true;
+      rust = true;
+      nix = true;
     };
+    mcp = {
+      linear.enable = true;
+      dart = {
+        enable = true;
+        # Match the fvm-managed Dart SDK that's already on the user's
+        # zsh PATH (see initContent below); spelled out absolutely so
+        # Zed launched from Spotlight/Finder still resolves it.
+        command = "${config.home.homeDirectory}/fvm/default/bin/dart";
+      };
+      figma.enable = true;
+    };
+  };
 
   programs.zen-browser = {
     enable = true;
@@ -158,10 +158,15 @@
         cmd = "cursor --wait --merge $REMOTE $LOCAL $BASE $MERGED";
         trustExitCode = true;
       };
+      # unfortunately, zed does not support 3 way merge editing just yet: https://github.com/zed-industries/zed/issues/34813
+      "mergetool \"zed\"" = {
+        cmd = "zeditor $MERGED";
+        trustExitCode = true;
+      };
       # on a new machine, run `mergiraf languages --gitattributes >> ~/.gitattributes`
       core.attributesfile = "~/.gitattributes";
       merge = {
-        tool = "vscursor";
+        tool = "zed";
         mergiraf = {
           name = "mergiraf";
           driver = "mergiraf merge --git %O %A %B -s %S -x %X -y %Y -p %P -l %L";
