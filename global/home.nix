@@ -160,7 +160,7 @@
       };
       # unfortunately, zed does not support 3 way merge editing just yet: https://github.com/zed-industries/zed/issues/34813
       "mergetool \"zed\"" = {
-        cmd = "zeditor $MERGED";
+        cmd = "zeditor --wait $MERGED";
         trustExitCode = true;
       };
       # on a new machine, run `mergiraf languages --gitattributes >> ~/.gitattributes`
