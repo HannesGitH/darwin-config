@@ -30,10 +30,10 @@ in
 
     channel = mkOption {
       type = types.enum [
-        "stable"
         "unstable"
+        "nightly"
       ];
-      default = "stable";
+      default = "unstable";
       description = ''
         Which Zed package to install:
 
@@ -195,7 +195,7 @@ in
     mkIf cfg.enable {
       programs.zed-editor = {
         package =
-          if cfg.channel == "unstable" then
+          if cfg.channel == "nightly" then
             # The upstream zed flake exposes the editor as `packages.<system>.default`.
             inputs.zed.packages.${pkgs.system}.default
           else
