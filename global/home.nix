@@ -26,12 +26,9 @@
 
   myModules.zed = {
     enable = true;
-    extensions = {
-      flutter = true;
-      rust = true;
-      nix = true;
-      comment = true;
-    };
+    # Extension toggles default to `true` in `modules/zed.nix`, so there's
+    # no need to restate them here. Per-user opt-outs live in
+    # `specifics/<user>/home.nix`
     mcp = {
       linear.enable = true;
       dart = {

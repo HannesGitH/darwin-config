@@ -74,6 +74,22 @@ in
       };
     };
 
+    extraExtensions = mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      example = literalExpression ''[ "elixir" "vue" "catppuccin" ]'';
+      description = ''
+        Additional Zed extension registry IDs to install on top of the
+        ones covered by the `myModules.zed.extensions.*` toggles.
+
+        The value is a list of extension IDs as they appear on
+        https://zed.dev/extensions (or in each extension's
+        `extension.toml`). Use this for per-user extensions that don't
+        warrant a dedicated module option -- one-off language packs,
+        alternative themes, niche tooling, etc.
+      '';
+    };
+
     theme = {
       dark = mkOption {
         type = types.str;
@@ -245,6 +261,10 @@ in
           ++ optionals cfg.extensions.rust [ "rust" ]
           # `comment` is the registry id for thedadams/zed-comment.
           ++ optionals cfg.extensions.comment [ "comment" ]
+          # Per-user escape hatch for extensions without a dedicated
+          # toggle. `lib.unique` above keeps things tidy if a user
+          # accidentally lists one that's already enabled by a toggle.
+          ++ cfg.extraExtensions
         );
 
         # Shared defaults are defined inline below; per-user tweaks come in
