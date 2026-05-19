@@ -199,7 +199,6 @@ in
       npx = lib.getExe' pkgs.nodejs "npx";
 
       mkRemoteServer = url: {
-        source = "custom";
         command = npx;
         args = [
           "-y"
@@ -223,7 +222,6 @@ in
         }
         // lib.optionalAttrs cfg.mcp.dart.enable {
           dart = {
-            source = "custom";
             command = cfg.mcp.dart.command;
             # `--experimental-mcp-server` is a no-op on Dart 3.9+, kept for
             # forward compatibility with older SDKs. `--force-roots-fallback`
@@ -301,7 +299,7 @@ in
           # so the `comment` extension (and others that rely on injections) win
           # over LSP-provided semantic tokens.
           semantic_tokens = "off";
-          lsp_document_colors = "border";
+          lsp_document_colors = "inlay";
           colorize_brackets = true;
           indent_guides = {
             background_coloring = "disabled";
