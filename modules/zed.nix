@@ -246,8 +246,27 @@ in
           # this set so corporate macOS proxy settings don't bleed into Zed.
           proxy = "";
 
+          # ---- Editor behavior -------------------------------------------------
+          # `semantic_tokens = off` keeps Tree-sitter highlighting authoritative
+          # so the `comment` extension (and others that rely on injections) win
+          # over LSP-provided semantic tokens.
+          semantic_tokens = "off";
+          lsp_document_colors = "border";
+          colorize_brackets = true;
+          indent_guides = {
+            background_coloring = "disabled";
+            coloring = "indent_aware";
+          };
+
+          # ---- App behavior ----------------------------------------------------
+          cli_default_open_behavior = "new_window";
+
           # ---- Layout / panels -------------------------------------------------
           bottom_dock_layout = "contained";
+
+          collaboration_panel = {
+            dock = "left";
+          };
 
           git_panel = {
             tree_view = true;
@@ -303,6 +322,52 @@ in
               effort = "high";
             };
             model_parameters = [ ];
+
+            # Allowlist a few read-only tools and well-anchored shell
+            # commands so the agent can run them without prompting.
+            tool_permissions = {
+              tools = {
+                fetch = {
+                  default = "allow";
+                };
+                "mcp:dart:add_roots" = {
+                  default = "allow";
+                };
+                "mcp:linear:get_diff" = {
+                  default = "allow";
+                };
+                "mcp:linear:get_diff_threads" = {
+                  default = "allow";
+                };
+                "mcp:linear:get_issue" = {
+                  default = "allow";
+                };
+                "mcp:linear:list_comments" = {
+                  default = "allow";
+                };
+                "mcp:linear:search_documentation" = {
+                  default = "allow";
+                };
+                edit_file = {
+                  always_allow = [
+                    { pattern = "^app/\\.zed/"; }
+                  ];
+                };
+                terminal = {
+                  always_allow = [
+                    { pattern = "^ls\\b"; }
+                    { pattern = "^sort\\b"; }
+                    { pattern = "^tail\\b"; }
+                    { pattern = "^grep\\b"; }
+                    { pattern = "^head\\b"; }
+                    { pattern = "^find\\s+/nix/store(\\s|$)"; }
+                    { pattern = "^xargs\\s+grep(\\s|$)"; }
+                    { pattern = "^git\\s+log(\\s|$)"; }
+                    { pattern = "^git\\s+show(\\s|$)"; }
+                  ];
+                };
+              };
+            };
           };
 
           context_servers = contextServers;
