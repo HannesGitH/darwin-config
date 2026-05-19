@@ -5,8 +5,13 @@
   # `modules/zed.nix`; anything personal (keymap muscle memory, SSH
   # remotes, etc.) is layered on here via `extraSettings`, which
   # `recursiveUpdate`s into Zed's `userSettings`.
-  myModules.zed.extraSettings = {
-    base_keymap = "VSCode";
+  myModules.zed = {
+    # Ride upstream Zed releases directly (via the `zed` flake input)
+    # instead of waiting for nixpkgs to ship them.
+    channel = "nightly";
+    extraSettings = {
+      base_keymap = "VSCode";
+    };
   };
 
   programs.git = {
