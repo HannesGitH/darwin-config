@@ -43,6 +43,8 @@ in
     kitty
     btop
 
+    nixd
+
     firefox
 
     (inputs.mergiraf.packages.${pkgs.system}.default.overrideAttrs (old: {
