@@ -97,6 +97,29 @@ in
       '';
     };
 
+    extraSettings = mkOption {
+      type = types.attrs;
+      default = { };
+      example = literalExpression ''
+        {
+          base_keymap = "VSCode";
+          buffer_font_size = 16;
+          ssh_connections = [ { host = "example.com"; username = "user"; } ];
+        }
+      '';
+      description = ''
+        Per-user overrides merged into Zed's `userSettings` on top of the
+        shared module defaults. Uses `lib.recursiveUpdate`, so individual
+        nested keys can be tweaked without clobbering sibling defaults
+        (lists, however, are replaced wholesale, not concatenated).
+
+        Set this from per-user files (e.g. `specifics/<user>/home.nix`) to
+        tailor Zed without forking the module -- the shared defaults stay
+        in `modules/zed.nix`, anything personal lives next to the user's
+        other home-manager config.
+      '';
+    };
+
     mcp = {
       # Each entry below maps to one entry in Zed's `context_servers` setting.
       # Zed only speaks stdio MCP natively, so HTTP-only providers are
@@ -224,13 +247,20 @@ in
           ++ optionals cfg.extensions.comment [ "comment" ]
         );
 
-        userSettings = {
+        # Shared defaults are defined inline below; per-user tweaks come in
+        # via `cfg.extraSettings` (see e.g. `specifics/hannes/home.nix`).
+        # `lib.recursiveUpdate` deep-merges with right-side precedence, so
+        # individual leaf keys (or whole nested attrsets) can be overridden
+        # without restating the rest of the defaults.
+        userSettings = lib.recursiveUpdate {
           theme = {
             mode = "system";
             inherit (cfg.theme) dark light;
           };
 
-          base_keymap = "VSCode";
+          # `base_keymap` is intentionally not set here -- it's a personal
+          # preference, so users opt into VSCode/Atom/JetBrains bindings via
+          # `myModules.zed.extraSettings.base_keymap`.
           vim_mode = false;
 
           ui_font_size = 15;
@@ -371,7 +401,7 @@ in
           };
 
           context_servers = contextServers;
-        };
+        } cfg.extraSettings;
       };
 
       home.packages = lib.optional (cfg.fontFamily == "FiraCode Nerd Font") pkgs.nerd-fonts.fira-code;
