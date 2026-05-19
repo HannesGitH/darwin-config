@@ -63,6 +63,15 @@ in
         default = true;
         description = "Install the Nix extension.";
       };
+      comment = mkOption {
+        type = types.bool;
+        default = true;
+        description = ''
+          Install the Comments Highlighter extension
+          (https://github.com/thedadams/zed-comment), which colorizes
+          TODO/NOTE/FIXME-style comment tags via tree-sitter injections.
+        '';
+      };
     };
 
     theme = {
@@ -211,6 +220,8 @@ in
           # The Rust extension only adds toolchain helpers; rust-analyzer
           # itself is bundled with Zed, so this stays optional.
           ++ optionals cfg.extensions.rust [ "rust" ]
+          # `comment` is the registry id for thedadams/zed-comment.
+          ++ optionals cfg.extensions.comment [ "comment" ]
         );
 
         userSettings = {

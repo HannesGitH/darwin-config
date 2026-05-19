@@ -30,6 +30,7 @@
       flutter = true;
       rust = true;
       nix = true;
+      comment = true;
     };
     mcp = {
       linear.enable = true;

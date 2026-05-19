@@ -32,8 +32,7 @@
       inputs.home-manager.follows = "home-manager";
     };
 
-    # remove the last part if you always want the latest (unstable) version
-    zed.url = "github:zed-industries/zed/v1.1.6";
+    zed.url = "github:zed-industries/zed";
   };
 
   outputs =
