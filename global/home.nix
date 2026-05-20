@@ -10,6 +10,7 @@
   imports = [
     inputs.zen-browser.homeModules.beta
     ../modules/zed.nix
+    ../modules/git.nix
   ];
 
   # home.userName = "blingmember";
@@ -148,23 +149,13 @@
     settings = {
       init.defaultBranch = "main";
       push.autoSetupRemote = true;
-      "mergetool \"vscode\"" = {
-        cmd = "code --wait --merge $REMOTE $LOCAL $BASE $MERGED";
-        trustExitCode = true;
-      };
-      "mergetool \"vscursor\"" = {
-        cmd = "cursor --wait --merge $REMOTE $LOCAL $BASE $MERGED";
-        trustExitCode = true;
-      };
-      # unfortunately, zed does not support 3 way merge editing just yet: https://github.com/zed-industries/zed/issues/34813
-      "mergetool \"zed\"" = {
-        cmd = "zeditor --wait $MERGED";
-        trustExitCode = true;
-      };
+      # Mergetool entries (vscode/cursor/zed) and `merge.tool` live in
+      # `modules/git.nix`, which picks the right zed binary name based on
+      # `myModules.zed.channel` and exposes `myModules.git.mergetool` for
+      # per-user overrides.
       # on a new machine, run `mergiraf languages --gitattributes >> ~/.gitattributes`
       core.attributesfile = "~/.gitattributes";
       merge = {
-        tool = "zed";
         mergiraf = {
           name = "mergiraf";
           driver = "mergiraf merge --git %O %A %B -s %S -x %X -y %Y -p %P -l %L";
