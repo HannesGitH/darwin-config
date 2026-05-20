@@ -45,6 +45,21 @@
 
   programs.zen-browser = {
     enable = true;
+
+    # Declare a single default profile so that profiles.ini always
+    # contains a Default=1 entry. Without this, every Nix rebuild
+    # produces a new install-hash for Zen, which Zen treats as a
+    # brand-new install and uses to create a fresh empty profile,
+    # orphaning logins/history/sessions/extensions. With a declared
+    # default present, new install-hashes fall through to this
+    # profile instead of spawning a new one.
+    #
+    # Empty body is intentional: home-manager only manages files it
+    # is told about, so places.sqlite, key4.db, logins.json,
+    # cookies.sqlite, extensions/, etc. inside Profiles/main are
+    # left untouched.
+    profiles.main = { };
+
     policies =
       let
         mkExtensionSettings = builtins.mapAttrs (
