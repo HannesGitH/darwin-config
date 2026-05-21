@@ -281,6 +281,29 @@ in
           # `myModules.zed.extraSettings.base_keymap`.
           vim_mode = false;
 
+          # ---- Edit prediction (a.k.a. inline AI completions) ------------------
+          # Defaults to the local Zeta 2.1 served by Ollama at localhost:11434.
+          # The system-level ollama service + auto-pull are wired up in
+          # `global/config.nix` (`launchd.user.agents.ollama` /
+          # `launchd.user.agents.ollama-pull-zeta`), so on machines using both
+          # this module and that config, edit predictions Just Work™ with no
+          # zed.dev sign-in and no network calls per keystroke.
+          #
+          # To opt out, override via `extraSettings.edit_predictions.provider`
+          # (e.g. `"zed"` for the hosted service, `"copilot"`, or `"none"`).
+          edit_predictions = {
+            provider = "ollama";
+            ollama = {
+              api_url = "http://localhost:11434";
+              # Pulled via `ollama pull hf.co/...` — no Modelfile needed.
+              # `prompt_format` must be explicit since `"infer"` only matches a
+              # model literally named `zeta2.1`, not the full hf.co/ slug.
+              model = "hf.co/mradermacher/zeta-2.1-GGUF:Q4_K_M";
+              prompt_format = "zeta2_1";
+              max_output_tokens = 512;
+            };
+          };
+
           ui_font_size = 15;
           buffer_font_size = 14;
           buffer_font_family = cfg.fontFamily;
