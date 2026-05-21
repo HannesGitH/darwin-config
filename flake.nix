@@ -33,6 +33,11 @@
     };
 
     zed.url = "github:zed-industries/zed";
+
+    zsh-nix-shell = {
+      url = "github:chisui/zsh-nix-shell/v0.7.0";
+      flake = false;
+    };
   };
 
   outputs =

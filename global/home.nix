@@ -124,17 +124,16 @@
       {
         name = "zsh-nix-shell";
         file = "nix-shell.plugin.zsh";
-        src = pkgs.fetchFromGitHub {
-          owner = "chisui";
-          repo = "zsh-nix-shell";
-          rev = "v0.7.0";
-          sha256 = "149zh2rm59blr2q458a5irkfh82y3dwdich60s9670kl3cl5h2m1";
-        };
+        src = inputs.zsh-nix-shell;
       }
     ];
     initContent = ''
       eval "$(/opt/homebrew/bin/brew shellenv)"
       export PATH="$HOME/fvm/default/bin:$PATH"
+
+      # Option+Right / Option+Left to jump words (matches macOS Terminal/iTerm2 default escape sequences)
+      bindkey "\e[1;3C" emacs-forward-word
+      bindkey "\e[1;3D" emacs-backward-word
 
       export PATH="$PATH":"$HOME/.pub-cache/bin"
 

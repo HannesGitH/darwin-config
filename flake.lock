@@ -506,7 +506,8 @@
         "prismLauncher": "prismLauncher",
         "sops-nix": "sops-nix",
         "zed": "zed",
-        "zen-browser": "zen-browser"
+        "zen-browser": "zen-browser",
+        "zsh-nix-shell": "zsh-nix-shell"
       }
     },
     "rust-overlay": {
@@ -625,6 +626,23 @@
       "original": {
         "owner": "0xc000022070",
         "repo": "zen-browser-flake",
+        "type": "github"
+      }
+    },
+    "zsh-nix-shell": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1684683511,
+        "narHash": "sha256-oQpYKBt0gmOSBgay2HgbXiDoZo5FoUKwyHSlUrOAP5E=",
+        "owner": "chisui",
+        "repo": "zsh-nix-shell",
+        "rev": "df48366e858feec2f770b48a7d92b56eab613396",
+        "type": "github"
+      },
+      "original": {
+        "owner": "chisui",
+        "ref": "v0.7.0",
+        "repo": "zsh-nix-shell",
         "type": "github"
       }
     }
