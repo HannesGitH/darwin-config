@@ -5,14 +5,20 @@
 }:
 
 # Wires up the per-user merge tool for git, choosing between Zed and
-# Cursor and -- when Zed is selected -- routing to the right binary
-# based on `myModules.zed.channel`:
+# Cursor and -- when Zed is selected -- routing to whichever binary the
+# active `myModules.zed.channel` package exposes:
 #
 # - nixpkgs `zed-editor` ships its CLI as `zeditor` to dodge the ncurses
-#   `zed` name collision, so the `unstable` channel needs to invoke
-#   `zeditor --wait $MERGED`.
-# - The upstream `zed-industries/zed` flake exposes the same editor with
-#   its native `zed` CLI name, so the `nightly` channel uses that.
+#   `zed` name collision (so the `unstable` channel resolves to a
+#   `bin/zeditor` in /nix/store).
+# - The upstream `zed-industries/zed` flake keeps the native `zed` CLI
+#   name (so the `nightly` channel resolves to a `bin/zed`).
+#
+# Both packages set `meta.mainProgram` correctly, so `lib.getExe` picks
+# the right binary by absolute store path. That avoids depending on the
+# user's PATH inside the mergetool, which git's `git-mergetool--lib`
+# scrubs (this used to manifest as `zeditor: command not found` when
+# launching mergetool from a fresh shell).
 #
 # Zed still lacks 3-way merge editing
 # (https://github.com/zed-industries/zed/issues/34813), which is why
@@ -23,7 +29,7 @@ let
 
   cfg = config.myModules.git;
 
-  zedBin = if config.myModules.zed.channel == "nightly" then "zed" else "zeditor";
+  zedExe = lib.getExe config.programs.zed-editor.package;
 in
 {
   options.myModules.git = {
@@ -55,7 +61,7 @@ in
         trustExitCode = true;
       };
       "mergetool \"zed\"" = {
-        cmd = "${zedBin} --wait $MERGED";
+        cmd = "${zedExe} --wait $MERGED";
         trustExitCode = true;
       };
       merge.tool = cfg.mergetool;
