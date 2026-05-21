@@ -5,12 +5,6 @@ let
   # resolves to the locked flake source in /nix/store, and its top-level
   # flake.nix is a plain attrset literal so we can `import` it directly.
   zedNixConfig = (import (inputs.zed + "/flake.nix")).nixConfig;
-
-  # Use ollama from `nixpkgsunstable`: the 25.11 derivation's patch phase
-  # tries to `rm` a test file that no longer exists in ollama 0.21.1
-  # (`model/models/nemotronh/model_omni_test.go`), so the build fails.
-  # Unstable tracks ollama releases more closely and has the fix.
-  ollama = inputs.nixpkgsunstable.legacyPackages.${pkgs.system}.ollama;
 in
 {
 
@@ -33,33 +27,31 @@ in
 
   environment.variables.LANG = "en_GB.UTF-8";
 
-  environment.systemPackages =
-    (with pkgs; [
-      libiconv
-      darwin.libiconv
-      git
-      git-lfs
-      rename
-      nil
-      autojump
-      go
-      inputs.nix-search-cli.packages.${pkgs.system}.default
-      bundletool
-      gnupg
+  environment.systemPackages = with pkgs; [
+    libiconv
+    darwin.libiconv
+    git
+    git-lfs
+    rename
+    nil
+    autojump
+    go
+    inputs.nix-search-cli.packages.${pkgs.system}.default
+    bundletool
+    gnupg
 
-      kitty
-      btop
+    kitty
+    btop
 
-      nixd
+    nixd
 
-      firefox
+    firefox
 
-      (inputs.mergiraf.packages.${pkgs.system}.default.overrideAttrs (old: {
-        doCheck = false;
-        doInstallCheck = false;
-      }))
-    ])
-    ++ [ ollama ];
+    (inputs.mergiraf.packages.${pkgs.system}.default.overrideAttrs (old: {
+      doCheck = false;
+      doInstallCheck = false;
+    }))
+  ];
 
   system.activationScripts = {
     extraActivation.text = ''
@@ -108,48 +100,15 @@ in
     ];
   };
 
-  # Keep ollama running in the background so Zed's edit predictions
-  # (provider = "ollama", model = "hf.co/mradermacher/zeta-2.1-GGUF:Q4_K_M") are always available.
-  launchd.user.agents.ollama = {
-    serviceConfig = {
-      Label = "dev.ollama.ollama";
-      ProgramArguments = [
-        "${ollama}/bin/ollama"
-        "serve"
-      ];
-      EnvironmentVariables = {
-        HOME = "/Users/blingmember";
-        OLLAMA_HOST = "127.0.0.1:11434";
-      };
-      RunAtLoad = true;
-      KeepAlive = true;
-      StandardOutPath = "/tmp/ollama.log";
-      StandardErrorPath = "/tmp/ollama.err";
-    };
-  };
-
-  # Pull zeta-2.1 from HuggingFace on login if not already present.
-  # Ollama supports hf.co/<user>/<repo>:<quant-tag> directly — no Modelfile needed.
-  # RunAtLoad = true runs once per login; the grep short-circuits immediately when
-  # the model is already cached, so ongoing overhead is negligible.
-  launchd.user.agents.ollama-pull-zeta = {
-    serviceConfig = {
-      Label = "dev.ollama.pull-zeta";
-      ProgramArguments = [
-        "/bin/sh"
-        "-c"
-        ''
-          until ${ollama}/bin/ollama list >/dev/null 2>&1; do sleep 2; done
-          ${ollama}/bin/ollama list | grep -q 'mradermacher/zeta-2.1-GGUF' \
-            || ${ollama}/bin/ollama pull hf.co/mradermacher/zeta-2.1-GGUF:Q4_K_M
-        ''
-      ];
-      RunAtLoad = true;
-      KeepAlive = false;
-      StandardOutPath = "/tmp/ollama-pull-zeta.log";
-      StandardErrorPath = "/tmp/ollama-pull-zeta.err";
-    };
-  };
+  # Local AI backend for Zed's edit-prediction feature. The module
+  # (`modules/ai.nix`) runs `mlx_lm.server` from a nix-managed Python env
+  # and lazily downloads the configured model from HuggingFace. The Zed
+  # side is wired up in `modules/zed.nix` via `open_ai_compatible_api`.
+  #
+  # MLX (not ollama/llama.cpp) because Zeta 2.1's bracketed FIM tokens
+  # (`<[fim-prefix]>`, `<|marker_1|>`, ...) don't survive GGUF conversion --
+  # MLX inherits the upstream `tokenizer.json` so they're preserved.
+  myModules.ai.enable = true;
 
   nix.extraOptions = ''
     extra-platforms = x86_64-darwin aarch64-darwin

@@ -282,23 +282,30 @@ in
           vim_mode = false;
 
           # ---- Edit prediction (a.k.a. inline AI completions) ------------------
-          # Defaults to the local Zeta 2.1 served by Ollama at localhost:11434.
-          # The system-level ollama service + auto-pull are wired up in
-          # `global/config.nix` (`launchd.user.agents.ollama` /
-          # `launchd.user.agents.ollama-pull-zeta`), so on machines using both
-          # this module and that config, edit predictions Just Work™ with no
-          # zed.dev sign-in and no network calls per keystroke.
+          # Defaults to the local Zeta 2.1 served by MLX-LM at 127.0.0.1:8080.
+          # The system-level backend (model download + `mlx_lm.server` launchd
+          # agents) is wired up by `modules/ai.nix`, enabled from
+          # `global/config.nix` via `myModules.ai.enable = true`. On machines
+          # using both modules, edit predictions Just Work™ with no zed.dev
+          # sign-in and no network calls per keystroke.
+          #
+          # MLX (not ollama/llama.cpp) because Zeta's bracketed FIM tokens
+          # (`<[fim-prefix]>`, `<|marker_1|>`, ...) get shredded into
+          # sub-tokens by `convert_hf_to_gguf.py`. MLX uses the upstream
+          # `tokenizer.json` directly, so they're preserved.
           #
           # To opt out, override via `extraSettings.edit_predictions.provider`
           # (e.g. `"zed"` for the hosted service, `"copilot"`, or `"none"`).
           edit_predictions = {
-            provider = "ollama";
-            ollama = {
-              api_url = "http://localhost:11434";
-              # Pulled via `ollama pull hf.co/...` — no Modelfile needed.
-              # `prompt_format` must be explicit since `"infer"` only matches a
-              # model literally named `zeta2.1`, not the full hf.co/ slug.
-              model = "hf.co/mradermacher/zeta-2.1-GGUF:Q4_K_M";
+            provider = "open_ai_compatible_api";
+            open_ai_compatible_api = {
+              # Must match `myModules.ai.{host,port}` in modules/ai.nix.
+              api_url = "http://127.0.0.1:8080/v1/completions";
+              # Local path to the model dir -- the only ID mlx_lm.server
+              # reliably serves when HF_HUB_OFFLINE=1. Must match
+              # `~/Models/<myModules.ai.modelLocalSlug>` (default:
+              # "zeta-2.1-mlx-q4").
+              model = "${config.home.homeDirectory}/Models/zeta-2.1-mlx-q4";
               prompt_format = "zeta2_1";
               max_output_tokens = 512;
             };

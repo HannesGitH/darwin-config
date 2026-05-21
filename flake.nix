@@ -97,6 +97,7 @@
           }
         )
         ./global/config.nix
+        ./modules/ai.nix
       ]
       ++ secretsModules;
     in
