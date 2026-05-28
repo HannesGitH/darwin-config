@@ -93,8 +93,8 @@ in
     theme = {
       dark = mkOption {
         type = types.str;
-        default = "Ayu Dark";
-        description = "Theme name used in dark mode (provided by the Ayu extension).";
+        default = "Palenight Theme";
+        description = "Theme name used in dark mode.";
       };
       light = mkOption {
         type = types.str;
