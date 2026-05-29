@@ -108,7 +108,11 @@ in
   # MLX (not ollama/llama.cpp) because Zeta 2.1's bracketed FIM tokens
   # (`<[fim-prefix]>`, `<|marker_1|>`, ...) don't survive GGUF conversion --
   # MLX inherits the upstream `tokenizer.json` so they're preserved.
-  myModules.ai.enable = true;
+  #
+  # Temporarily disabled: flip back to `true` to re-enable local edit
+  # predictions. Keep this in sync with the matching
+  # `edit_predictions.provider` override in `global/home.nix`.
+  myModules.ai.enable = false;
 
   nix.extraOptions = ''
     extra-platforms = x86_64-darwin aarch64-darwin

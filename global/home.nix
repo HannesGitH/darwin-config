@@ -41,6 +41,13 @@
       };
       figma.enable = true;
     };
+
+    # Edit predictions are temporarily off -- paired with
+    # `myModules.ai.enable = false` in `global/config.nix`. Without this
+    # override Zed would keep poking the now-dead local MLX server at
+    # `127.0.0.1:8080`. Drop this block (or set provider back to
+    # `"open_ai_compatible_api"`) when re-enabling the AI module.
+    extraSettings.edit_predictions.provider = "none";
   };
 
   programs.zen-browser = {

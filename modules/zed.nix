@@ -243,7 +243,75 @@ in
         package =
           if cfg.channel == "nightly" then
             # The upstream zed flake exposes the editor as `packages.<system>.default`.
-            inputs.zed.packages.${pkgs.system}.default
+            #
+            # Workaround for aarch64-darwin: the final Zed binary has grown
+            # past ~150MB of code, and at that size Apple's `ld64` can't
+            # satisfy ARM64's ±128MB `b`/`bl` direct-branch range for some
+            # cross-crate calls (e.g. `gpui_macos::window` calling into
+            # `cocoa_foundation`). The link step dies with:
+            #
+            #     ld: b(l) ARM64 branch out of range (-159277244 max is +/-128MB)
+            #
+            # `zed.cachix.org` doesn't currently publish aarch64-darwin
+            # builds of the nightly tip either, so we can't sidestep the
+            # link by pulling a substitute. Two patches together get us
+            # under the limit:
+            #
+            #   1. Drop the per-package `[profile.release.package.zed]`
+            #      override (which bumps `codegen-units` back to 16 for
+            #      faster upstream iteration). With cg=16 the top crate
+            #      emits ~16 duplicated copies of all monomorphized
+            #      generics; falling back to the workspace default of
+            #      cg=1 shrinks the binary slightly (~1MB) and makes the
+            #      output layout denser.
+            #
+            #   2. Force the final link through LLVM's `lld` (`ld64.lld`)
+            #      instead of Apple's `ld64`. `lld` automatically emits
+            #      long-range branch "veneers" / trampolines for out-of-
+            #      range `bl` instructions, which is the well-trodden fix
+            #      for this error. Apple's current `ld64` (both the new
+            #      `ld-prime` codepath and the legacy `-ld_classic` mode)
+            #      regressed this on aarch64-darwin in recent cctools
+            #      versions and fails the link instead of inserting a
+            #      thunk. We tried `-Wl,-ld_classic` first -- the flag
+            #      is honored but the underlying linker behavior is
+            #      identical, so it didn't help.
+            #
+            #      The flag is added by extending the existing `[build]`
+            #      rustflags list in `.cargo/config.toml` (rather than a
+            #      new `[target.aarch64-apple-darwin]` block), because
+            #      cargo _replaces_, not merges, rustflags when a more
+            #      specific target section matches -- and the existing
+            #      list contains `--cfg tokio_unstable`, which the rest
+            #      of the workspace relies on at compile time. `lld` is
+            #      put on `$PATH` via `nativeBuildInputs` so that clang's
+            #      `-fuse-ld=lld` driver flag can find `ld64.lld`.
+            #
+            # Both patches run in the outer `buildPackage`, so
+            # `cargoArtifacts` (the dep build) stays cached -- only the
+            # `zed`/`cli` recompile and final link redo. (NB: editing
+            # `.cargo/config.toml` does invalidate cargo's own
+            # fingerprint cache inside the sandbox, so the final-crate
+            # compile re-runs end to end; that's intrinsic, not
+            # something this hack causes.)
+            #
+            # Revisit once upstream fixes this (e.g. by switching darwin
+            # to `lto = "fat"`, dropping the cg=16 override, or shipping
+            # cached binaries we can actually consume).
+            (inputs.zed.packages.${pkgs.system}.default.overrideAttrs (old: {
+              nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.lld ];
+              postPatch = (old.postPatch or "") + ''
+                substituteInPlace Cargo.toml \
+                  --replace-fail \
+                    'zed = { codegen-units = 16 }' \
+                    '# zed = { codegen-units = 16 } # patched out by darwin-config (modules/zed.nix) -- see comment there'
+
+                substituteInPlace .cargo/config.toml \
+                  --replace-fail \
+                    'rustflags = ["-C", "symbol-mangling-version=v0", "--cfg", "tokio_unstable"]' \
+                    'rustflags = ["-C", "symbol-mangling-version=v0", "--cfg", "tokio_unstable", "-C", "link-arg=-fuse-ld=lld"]'
+              '';
+            }))
           else
             inputs.nixpkgsunstable.legacyPackages.${pkgs.system}.zed-editor;
         enable = true;
@@ -274,6 +342,35 @@ in
           theme = {
             mode = "system";
             inherit (cfg.theme) dark light;
+          };
+
+          # Per-theme tweaks. Only the keys listed here override the base
+          # theme; everything else is inherited.
+          theme_overrides = {
+            "Palenight Theme" = {
+              "editor.background" = "#191D2b";
+              "scrollbar.track.background" = "#191D2b";
+              "scrollbar.track.border" = "#191D2b";
+              "tab.active_background" = "#191D2b";
+              "toolbar.background" = "#191D2b";
+              "title_bar.background" = "#191D2b";
+              background = "#191D2b";
+              # "elevated_surface.background" = "#191D2e";
+              # "surface.background" = "#191D2b";
+              "editor.gutter.background" = "#191D2b";
+              "panel.background" = "#292D3e";
+              syntax = {
+                type = {
+                  color = "#dcd288ff";
+                  font_style = null;
+                  font_weight = null;
+                };
+              };
+              accents = [
+                "#5b0"
+                "#0ab"
+              ];
+            };
           };
 
           # `base_keymap` is intentionally not set here -- it's a personal
