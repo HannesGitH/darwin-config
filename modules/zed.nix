@@ -358,6 +358,8 @@ in
               # "elevated_surface.background" = "#191D2e";
               # "surface.background" = "#191D2b";
               "editor.gutter.background" = "#191D2b";
+              "error.background" = "#4d2b2b";
+              "warning.background" = "#4a4327";
               "panel.background" = "#292D3e";
               syntax = {
                 type = {
