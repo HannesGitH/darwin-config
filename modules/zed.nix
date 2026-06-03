@@ -23,10 +23,30 @@ let
     optionals
     literalExpression
     ;
+
+  # Shared edit-prediction model presets, also consumed by modules/ai.nix
+  # (the MLX server backend). See modules/ai-presets.nix.
+  presets = import ./ai-presets.nix;
 in
 {
   options.myModules.zed = {
     enable = mkEnableOption "Zed editor with darwin-config defaults";
+
+    editPrediction = {
+      preset = mkOption {
+        type = types.enum (builtins.attrNames presets);
+        default = "qwen-1.5b";
+        description = ''
+          Which model preset Zed's edit-prediction should target. This
+          selects both the `prompt_format` and the local model path that
+          Zed sends to the MLX server.
+
+          Must match `myModules.ai.preset` (the backend that actually
+          serves the model). Both default to the same value, so normally
+          there's nothing to do -- change them together if you switch.
+        '';
+      };
+    };
 
     channel = mkOption {
       type = types.enum [
@@ -193,6 +213,9 @@ in
   config =
     let
       cfg = config.myModules.zed;
+
+      # Resolve the active edit-prediction preset (ollama model + format).
+      epPreset = presets.${cfg.editPrediction.preset};
 
       # Pin the bridge binary to the nixpkgs nodejs so this works on hosts
       # that don't have a system-wide npx (e.g. fresh `maccaroni` setups).
@@ -381,31 +404,23 @@ in
           vim_mode = false;
 
           # ---- Edit prediction (a.k.a. inline AI completions) ------------------
-          # Defaults to the local Zeta 2.1 served by MLX-LM at 127.0.0.1:8080.
-          # The system-level backend (model download + `mlx_lm.server` launchd
-          # agents) is wired up by `modules/ai.nix`, enabled from
-          # `global/config.nix` via `myModules.ai.enable = true`. On machines
-          # using both modules, edit predictions Just Work™ with no zed.dev
-          # sign-in and no network calls per keystroke.
+          # Served by the local ollama instance set up in `modules/ai.nix`
+          # (enabled from `global/config.nix` via `myModules.ai.enable`).
+          # On machines using both modules, edit predictions Just Work™ with
+          # no zed.dev sign-in -- Metal-accelerated, fully local.
           #
-          # MLX (not ollama/llama.cpp) because Zeta's bracketed FIM tokens
-          # (`<[fim-prefix]>`, `<|marker_1|>`, ...) get shredded into
-          # sub-tokens by `convert_hf_to_gguf.py`. MLX uses the upstream
-          # `tokenizer.json` directly, so they're preserved.
+          # The model + prompt_format come from the selected
+          # `myModules.zed.editPrediction.preset`, which must match the
+          # backend's `myModules.ai.preset` (both default to `qwen-1.5b`).
           #
           # To opt out, override via `extraSettings.edit_predictions.provider`
           # (e.g. `"zed"` for the hosted service, `"copilot"`, or `"none"`).
           edit_predictions = {
-            provider = "open_ai_compatible_api";
-            open_ai_compatible_api = {
-              # Must match `myModules.ai.{host,port}` in modules/ai.nix.
-              api_url = "http://127.0.0.1:8080/v1/completions";
-              # Local path to the model dir -- the only ID mlx_lm.server
-              # reliably serves when HF_HUB_OFFLINE=1. Must match
-              # `~/Models/<myModules.ai.modelLocalSlug>` (default:
-              # "zeta-2.1-mlx-q4").
-              model = "${config.home.homeDirectory}/Models/zeta-2.1-mlx-q4";
-              prompt_format = "zeta2_1";
+            provider = "ollama";
+            ollama = {
+              api_url = "http://localhost:11434";
+              model = epPreset.ollamaModel;
+              prompt_format = epPreset.promptFormat;
               max_output_tokens = 512;
             };
           };

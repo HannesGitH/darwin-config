@@ -101,17 +101,11 @@ in
   };
 
   # Local AI backend for Zed's edit-prediction feature. The module
-  # (`modules/ai.nix`) runs `mlx_lm.server` from a nix-managed Python env
-  # and lazily downloads the configured model from HuggingFace. The Zed
-  # side is wired up in `modules/zed.nix` via `open_ai_compatible_api`.
-  #
-  # MLX (not ollama/llama.cpp) because Zeta 2.1's bracketed FIM tokens
-  # (`<[fim-prefix]>`, `<|marker_1|>`, ...) don't survive GGUF conversion --
-  # MLX inherits the upstream `tokenizer.json` so they're preserved.
-  #
-  # Temporarily disabled: flip back to `true` to re-enable local edit
-  # predictions. Keep this in sync with the matching
-  # `edit_predictions.provider` override in `global/home.nix`.
+  # (`modules/ai.nix`) runs a Metal-accelerated `ollama` instance and
+  # auto-pulls the model selected by `myModules.ai.preset` (default
+  # `qwen-1.5b`). The Zed side is wired up in `modules/zed.nix` via the
+  # `ollama` edit-prediction provider. The model is shared with
+  # `myModules.zed.editPrediction.preset` (keep them in sync).
   myModules.ai.enable = true;
 
   nix.extraOptions = ''
