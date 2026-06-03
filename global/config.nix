@@ -112,7 +112,7 @@ in
   # Temporarily disabled: flip back to `true` to re-enable local edit
   # predictions. Keep this in sync with the matching
   # `edit_predictions.provider` override in `global/home.nix`.
-  myModules.ai.enable = false;
+  myModules.ai.enable = true;
 
   nix.extraOptions = ''
     extra-platforms = x86_64-darwin aarch64-darwin

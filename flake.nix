@@ -78,7 +78,7 @@
         inputs.nix-index-database.darwinModules.nix-index
         home-manager.darwinModules.home-manager
         (
-          { pkgs, ... }:
+          { ... }:
           {
             # inherit nixpkgs;
             # `home-manager` config
