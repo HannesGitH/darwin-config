@@ -137,6 +137,8 @@
 
       export PATH="$PATH":"$HOME/.pub-cache/bin"
 
+      export NODE_OPTIONS='--no-experimental-strip-types'
+
       # cargo (installed via rustup)
       # . "$HOME/.cargo/env"
 
