@@ -92,6 +92,28 @@ in
           TODO/NOTE/FIXME-style comment tags via tree-sitter injections.
         '';
       };
+      spellcheck = mkOption {
+        type = types.bool;
+        default = true;
+        description = ''
+          Install the CSpell extension
+          (https://github.com/mantou132/zed-cspell), a spell checker
+          backed by `@vlabo/cspell-lsp`.
+
+          When enabled, a global cspell config is written to
+          `~/Library/Preferences/cspell/cspell.json` activating the
+          English (bundled with cspell) and German dictionaries. The
+          German dictionary (`@cspell/dict-de-de`) is pinned and built
+          from its npm tarball via Nix and imported by absolute store
+          path -- no `npm install -g` / `cspell link` needed.
+
+          The LSP only reads cspell config files (project `cspell.json`,
+          the global config above, and cspell's bundled defaults); it
+          does not consult Zed's `lsp.cspell.settings`. Override the
+          locale/dictionaries via the global config or a project-level
+          `cspell.json`.
+        '';
+      };
     };
 
     extraExtensions = mkOption {
@@ -231,6 +253,44 @@ in
         env = { };
       };
 
+      # German dictionary for cspell (`@cspell/dict-de-de`), built straight
+      # from its published npm tarball. cspell bundles English already, but
+      # German ships as a separate package; rather than the README's
+      # imperative `npm install -g @cspell/dict-de-de && cspell link add`,
+      # we pin it here and import its `cspell-ext.json` by absolute store
+      # path from the global cspell config below. The tarball unpacks under
+      # `package/`, so `--strip-components=1` lands `cspell-ext.json` and
+      # `de_DE.trie.gz` at the root of `$out` (the trie path inside the ext
+      # file is relative, so both must sit side by side).
+      cspellGermanDict =
+        pkgs.runCommand "cspell-dict-de-de-4.1.2"
+          {
+            src = pkgs.fetchurl {
+              url = "https://registry.npmjs.org/@cspell/dict-de-de/-/dict-de-de-4.1.2.tgz";
+              hash = "sha256-bikoewusguLv1UvP2x3k9/KpSfBfNP1H88Xfqa1zaUE=";
+            };
+          }
+          ''
+            mkdir -p $out
+            tar -xzf $src --strip-components=1 -C $out
+          '';
+
+      # Global cspell config read by `cspell-lsp` via `getGlobalSettingsAsync`
+      # (macOS path: ~/Library/Preferences/cspell/cspell.json -- the path
+      # documented in the zed-cspell README). This is the declarative
+      # equivalent of the README's `cspell link add` + `dictionaries`
+      # recipe: `import` registers the German dictionary definition built
+      # above (replacing the imperative `npm install -g`/`cspell link`
+      # step), `dictionaries` enables it by name (`de-de` from its
+      # cspell-ext.json), and `language` sets the active locales. English
+      # ships bundled with cspell and stays on via the `en` locale.
+      cspellGlobalConfig = (pkgs.formats.json { }).generate "cspell.json" {
+        version = "0.2";
+        language = "en,de-DE";
+        import = [ "${cspellGermanDict}/cspell-ext.json" ];
+        dictionaries = [ "de-de" ];
+      };
+
       figmaUrl =
         if cfg.mcp.figma.url != null then
           cfg.mcp.figma.url
@@ -350,6 +410,10 @@ in
           ++ optionals cfg.extensions.rust [ "rust" ]
           # `comment` is the registry id for thedadams/zed-comment.
           ++ optionals cfg.extensions.comment [ "comment" ]
+          # `cspell` is the registry id for mantou132/zed-cspell. The
+          # dictionaries are wired up via the global config in home.file
+          # below (the LSP ignores Zed's `lsp.cspell.settings`).
+          ++ optionals cfg.extensions.spellcheck [ "cspell" ]
           # Per-user escape hatch for extensions without a dedicated
           # toggle. `lib.unique` above keeps things tidy if a user
           # accidentally lists one that's already enabled by a toggle.
@@ -567,5 +631,12 @@ in
       };
 
       home.packages = lib.optional (cfg.fontFamily == "FiraCode Nerd Font") pkgs.nerd-fonts.fira-code;
+
+      # Global cspell config consumed by `cspell-lsp` (see the `spellcheck`
+      # toggle). Lives outside Zed's own settings because the LSP only
+      # reads cspell config files, not Zed's `lsp.*.settings`.
+      home.file = lib.mkIf cfg.extensions.spellcheck {
+        "Library/Preferences/cspell/cspell.json".source = cspellGlobalConfig;
+      };
     };
 }
