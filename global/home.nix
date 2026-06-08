@@ -54,11 +54,20 @@
     # default present, new install-hashes fall through to this
     # profile instead of spawning a new one.
     #
-    # Empty body is intentional: home-manager only manages files it
-    # is told about, so places.sqlite, key4.db, logins.json,
-    # cookies.sqlite, extensions/, etc. inside Profiles/main are
-    # left untouched.
-    profiles.main = { };
+    # home-manager only manages files it is told about, so
+    # places.sqlite, key4.db, logins.json, cookies.sqlite,
+    # extensions/, etc. inside Profiles/main are left untouched.
+    # Only the prefs declared in `settings` below are written to
+    # the profile's user.js.
+    profiles.main = {
+      # Force DNS-over-HTTPS through Quad9 (TRR mode 2 = DoH first,
+      # fall back to native DNS on failure).
+      settings = {
+        "network.trr.mode" = 2;
+        "network.trr.uri" = "https://dns.quad9.net/dns-query";
+        "network.trr.bootstrapAddress" = "9.9.9.9";
+      };
+    };
 
     policies =
       let
