@@ -101,11 +101,12 @@ in
   };
 
   # Local AI backend for Zed's edit-prediction feature. The module
-  # (`modules/ai.nix`) runs a Metal-accelerated `ollama` instance and
-  # auto-pulls the model selected by `myModules.ai.preset` (default
-  # `qwen-1.5b`). The Zed side is wired up in `modules/zed.nix` via the
-  # `ollama` edit-prediction provider. The model is shared with
-  # `myModules.zed.editPrediction.preset` (keep them in sync).
+  # (`modules/ai.nix`) runs a Metal-accelerated `mlx_lm.server` and serves
+  # the model selected by `myModules.ai.preset` (default `zeta-2.1`, Zed's
+  # own edit-prediction model -- downloaded from HuggingFace on first
+  # start). The Zed side is wired up in `modules/zed.nix` via the
+  # `open_ai_compatible_api` edit-prediction provider. The model is shared
+  # with `myModules.zed.editPrediction.preset` (keep them in sync).
   myModules.ai.enable = true;
 
   nix.extraOptions = ''
