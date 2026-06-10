@@ -102,8 +102,8 @@ in
 
   # Local AI backend for Zed's edit-prediction feature. The module
   # (`modules/ai.nix`) runs a Metal-accelerated `mlx_lm.server` and serves
-  # the model selected by `myModules.ai.preset` (default `zeta-2.1`, Zed's
-  # own edit-prediction model -- downloaded from HuggingFace on first
+  # the model selected by `myModules.ai.preset` (default `zeta-2.1-3bit`,
+  # Zed's own edit-prediction model -- downloaded from HuggingFace on first
   # start). The Zed side is wired up in `modules/zed.nix` via the
   # `open_ai_compatible_api` edit-prediction provider. The model is shared
   # with `myModules.zed.editPrediction.preset` (keep them in sync).

@@ -82,13 +82,15 @@ in
 
     preset = lib.mkOption {
       type = lib.types.enum (builtins.attrNames presets);
-      default = "zeta-2.1";
+      default = "zeta-2.1-3bit";
       description = ''
         Which model preset to serve (see modules/ai-presets.nix):
 
-        - `zeta-2.1` *(default)*: Zed's own edit-prediction model, 8B at
-          4-bit. Best quality, heaviest prefill.
-        - `qwen-1.5b`: fast plain-FIM fallback for slower machines.
+        - `zeta-2.1-3bit` *(default)*: Zed's own edit-prediction model, 8B
+          at 3-bit (~3.6 GB). Lighter Zeta quant.
+        - `zeta-2.1`: same model at 4-bit (~4.6 GB), higher quality.
+        - `zeta-2.1-2bit`: lightest Zeta (~2.6 GB), degraded quality.
+        - `qwen-1.5b`: fast plain-FIM fallback, far less RAM (~1 GB).
         - `qwen-0.5b`: fastest, near-instant; lower quality.
         - `qwen-7b`: highest-quality plain-FIM option.
 

@@ -35,7 +35,7 @@ in
     editPrediction = {
       preset = mkOption {
         type = types.enum (builtins.attrNames presets);
-        default = "zeta-2.1";
+        default = "zeta-2.1-3bit";
         description = ''
           Which model preset Zed's edit-prediction should target. This
           selects both the `prompt_format` and the model id that Zed
@@ -476,7 +476,7 @@ in
           #
           # The model + prompt_format come from the selected
           # `myModules.zed.editPrediction.preset`, which must match the
-          # backend's `myModules.ai.preset` (both default to `zeta-2.1`).
+          # backend's `myModules.ai.preset` (both default to `zeta-2.1-3bit`).
           # The port is hardcoded here because home-manager can't read the
           # system module's options -- keep in sync with `myModules.ai.port`.
           #
