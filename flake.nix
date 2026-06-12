@@ -32,7 +32,7 @@
       inputs.home-manager.follows = "home-manager";
     };
 
-    zed.url = "github:zed-industries/zed";
+    zed.url = "github:HannesGitH/zed";
 
     zsh-nix-shell = {
       url = "github:chisui/zsh-nix-shell/v0.7.0";
