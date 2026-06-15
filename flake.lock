@@ -593,15 +593,16 @@
         "rust-overlay": "rust-overlay_2"
       },
       "locked": {
-        "lastModified": 1780930117,
-        "narHash": "sha256-d93ZEQCCnCCIcEEMxd1+pxyMos3YmBbarMPPRAkYzLk=",
+        "lastModified": 1781445914,
+        "narHash": "sha256-JRhQfVS6LbP81mgGiySScG+offNjvEptBR11bo+Ri1c=",
         "owner": "HannesGitH",
         "repo": "zed",
-        "rev": "1d1a4bee340203e805ae0eee50c1064959b8bc2e",
+        "rev": "927efbe84bad2983854f77327c1358a0e13222e1",
         "type": "github"
       },
       "original": {
         "owner": "HannesGitH",
+        "ref": "my-fix-collection",
         "repo": "zed",
         "type": "github"
       }
