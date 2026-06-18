@@ -94,6 +94,9 @@
 
   home.file.".config/direnv/direnv.toml".text = ''
     [global]
+
+    [whitelist]
+    prefix = [ "${config.home.homeDirectory}/repos/b" ]
   '';
 
   programs.pay-respects = {
