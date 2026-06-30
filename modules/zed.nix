@@ -448,6 +448,8 @@ in
         # individual leaf keys (or whole nested attrsets) can be overridden
         # without restating the rest of the defaults.
         userSettings = lib.recursiveUpdate {
+          icon_theme = "Material Icon Theme";
+
           theme = {
             mode = "system";
             inherit (cfg.theme) dark light;
@@ -489,6 +491,22 @@ in
           # `myModules.zed.extraSettings.base_keymap`.
           vim_mode = false;
 
+          # Disable diagnostics + usage telemetry.
+          telemetry = {
+            diagnostics = false;
+            metrics = false;
+          };
+
+          # External (ACP) agent servers. Cursor's agent via its registry.
+          agent_servers = {
+            cursor = {
+              type = "registry";
+              default_config_options = {
+                model = "gpt-5.5[context=272k,reasoning=medium,fast=false]";
+              };
+            };
+          };
+
           # ---- Edit prediction (a.k.a. inline AI completions) ------------------
           # Selected by `myModules.zed.editPrediction.provider`:
           #
@@ -506,7 +524,20 @@ in
           #
           # For other providers (`"copilot"`, `"none"`, ...) override via
           # `extraSettings.edit_predictions.provider`.
-          edit_predictions =
+          edit_predictions = {
+            # Never upload edit-prediction data to Zed's training set.
+            allow_data_collection = "no";
+
+            # Inert unless `provider` is flipped to ollama -- kept so the
+            # endpoint/model are preconfigured if you switch locally.
+            ollama = {
+              api_url = "http://localhost:11434";
+              max_output_tokens = 512;
+              model = "qwen2.5-coder:1.5b-base";
+              prompt_format = "qwen";
+            };
+          }
+          // (
             if cfg.editPrediction.provider == "local" then
               {
                 provider = "open_ai_compatible_api";
@@ -520,7 +551,8 @@ in
             else
               {
                 provider = "zed";
-              };
+              }
+          );
 
           ui_font_size = 15;
           buffer_font_size = 14;
@@ -593,6 +625,7 @@ in
 
           # ---- Agent (Zed AI) --------------------------------------------------
           agent = {
+            sidebar_side = "right";
             max_content_width = 1000.0;
             default_width = 540.0;
             dock = "right";
@@ -606,43 +639,195 @@ in
             ];
             default_model = {
               provider = "anthropic";
-              model = "claude-opus-4-7-latest";
+              model = "claude-opus-4-8";
               enable_thinking = true;
               effort = "high";
             };
             model_parameters = [ ];
 
-            # Allowlist a few read-only tools and well-anchored shell
-            # commands so the agent can run them without prompting.
+            default_profile = "ask";
+
+            # Custom agent profiles (per-task tool + context-server
+            # allowlists). Tool entries are harmless on hosts where a given
+            # MCP server isn't enabled.
+            profiles = {
+              investigate = {
+                name = "investigate";
+                default_model = {
+                  provider = "anthropic";
+                  model = "claude-opus-4-8";
+                  enable_thinking = true;
+                  effort = "high";
+                };
+                tools = {
+                  copy_path = true;
+                  diagnostics = true;
+                  fetch = true;
+                  find_path = true;
+                  grep = true;
+                  list_directory = true;
+                  read_file = true;
+                  skill = true;
+                  spawn_agent = true;
+                };
+                enable_all_context_servers = false;
+                context_servers = {
+                  "sentry-mcp".tools = {
+                    whoami = true;
+                    update_project = true;
+                    update_issue = true;
+                    search_issues = true;
+                    search_issue_events = true;
+                    search_events = true;
+                    search_docs = true;
+                    get_sentry_resource = true;
+                    get_replay_details = true;
+                    get_profile_details = true;
+                    get_issue_tag_values = true;
+                    get_event_attachment = true;
+                    get_doc = true;
+                    find_teams = true;
+                    find_releases = true;
+                    find_projects = true;
+                    find_organizations = true;
+                    find_dsns = true;
+                    analyze_issue_with_seer = true;
+                  };
+                  "mcp-server-figma".tools = {
+                    get_figma_data = true;
+                    download_figma_images = true;
+                  };
+                  linear.tools = {
+                    prepare_attachment_upload = true;
+                    list_users = true;
+                    list_teams = true;
+                    list_projects = true;
+                    list_project_labels = true;
+                    list_milestones = true;
+                    list_issues = true;
+                    list_issue_statuses = true;
+                    list_issue_labels = true;
+                    list_initiatives = true;
+                    list_documents = true;
+                    list_diffs = true;
+                    list_cycles = true;
+                    list_comments = true;
+                    get_user = true;
+                    get_team = true;
+                    get_status_updates = true;
+                    get_project = true;
+                    get_milestone = true;
+                    get_issue_status = true;
+                    get_issue = true;
+                    get_initiative = true;
+                    get_document = true;
+                    get_diff_threads = true;
+                    get_diff = true;
+                    get_attachment = true;
+                  };
+                  dart.tools = {
+                    stop_app = true;
+                    signature_help = true;
+                    set_widget_selection_mode = true;
+                    run_tests = true;
+                    resolve_workspace_symbol = true;
+                    remove_roots = true;
+                    read_package_uris = true;
+                    pub_dev_search = true;
+                    list_running_apps = true;
+                    list_devices = true;
+                    launch_app = true;
+                    hover = true;
+                    hot_restart = true;
+                    hot_reload = true;
+                    get_widget_tree = true;
+                    get_selected_widget = true;
+                    get_runtime_errors = true;
+                    get_app_logs = true;
+                    get_active_location = true;
+                    flutter_driver = true;
+                    dart_fix = false;
+                    create_project = false;
+                    connect_dart_tooling_daemon = true;
+                    analyze_files = true;
+                    add_roots = true;
+                  };
+                };
+              };
+              write = {
+                name = "Write";
+                tools = {
+                  copy_path = true;
+                  create_directory = true;
+                  delete_path = true;
+                  diagnostics = true;
+                  edit_file = true;
+                  fetch = true;
+                  list_directory = true;
+                  project_notifications = false;
+                  move_path = true;
+                  now = true;
+                  find_path = true;
+                  read_file = true;
+                  restore_file_from_disk = true;
+                  save_file = true;
+                  open = true;
+                  grep = true;
+                  spawn_agent = true;
+                  terminal = true;
+                  thinking = true;
+                  update_plan = true;
+                  search_web = true;
+                };
+                enable_all_context_servers = true;
+                context_servers = { };
+              };
+            };
+
+            # Allowlist read-only tools and well-anchored shell commands so
+            # the agent can run them without prompting.
             tool_permissions = {
               tools = {
-                fetch = {
-                  default = "allow";
-                };
-                "mcp:dart:add_roots" = {
-                  default = "allow";
-                };
-                "mcp:linear:get_diff" = {
-                  default = "allow";
-                };
-                "mcp:linear:get_diff_threads" = {
-                  default = "allow";
-                };
-                "mcp:linear:get_issue" = {
-                  default = "allow";
-                };
-                "mcp:linear:list_comments" = {
-                  default = "allow";
-                };
-                "mcp:linear:search_documentation" = {
-                  default = "allow";
-                };
+                fetch.default = "allow";
+                move_path.default = "allow";
+                create_directory.default = "allow";
+                copy_path.default = "allow";
+                "mcp:dart:add_roots".default = "allow";
+                "mcp:dart:analyze_files".default = "allow";
+                "mcp:dart:dart_format".default = "allow";
+                "mcp:dart:hover".default = "allow";
+                "mcp:dart:launch_app".default = "allow";
+                "mcp:dart:list_devices".default = "allow";
+                "mcp:dart:pub".default = "allow";
+                "mcp:dart:pub_dev_search".default = "allow";
+                "mcp:dart:read_package_uris".default = "allow";
+                "mcp:dart:remove_roots".default = "allow";
+                "mcp:dart:run_tests".default = "allow";
+                "mcp:linear:get_diff".default = "allow";
+                "mcp:linear:get_diff_threads".default = "allow";
+                "mcp:linear:get_issue".default = "allow";
+                "mcp:linear:list_comments".default = "allow";
+                "mcp:linear:search_documentation".default = "allow";
+                "mcp:sentry-mcp:find_organizations".default = "allow";
+                "mcp:sentry-mcp:get_sentry_resource".default = "allow";
+                "mcp:sentry-mcp:search_events".default = "allow";
+                "mcp:sentry-mcp:search_issues".default = "allow";
+                "mcp:mcp-server-figma:get_figma_data".default = "allow";
+                "mcp:mcp-server-figma:download_figma_images".default = "allow";
                 edit_file = {
                   always_allow = [
                     { pattern = "^app/\\.zed/"; }
                   ];
                 };
+                delete_path = {
+                  default = "allow";
+                  always_allow = [
+                    { pattern = "^be/src/models/"; }
+                    { pattern = "^be/src/modules/billing/v2/features/"; }
+                  ];
+                };
                 terminal = {
+                  default = "allow";
                   always_allow = [
                     { pattern = "^ls\\b"; }
                     { pattern = "^sort\\b"; }

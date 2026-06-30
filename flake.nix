@@ -108,7 +108,28 @@
           specialArgs = { inherit inputs; };
           modules = globalModules ++ [
             {
-              home-manager.users."blingmember" = import ./specifics/hannes/home.nix;
+              home-manager.users."blingmember" = {
+                imports = [
+                  ./specifics/hannes/home.nix
+                  # Backend-role Zed config (vtsls). maccaroni is a backend
+                  # dev box; pairs with ./specifics/backend/config.nix below.
+                  ./specifics/backend/home.nix
+                ];
+
+                # SSH remote scoped to this host (maccaroni) only -- layered
+                # into Zed's userSettings via extraSettings (modules/zed.nix).
+                myModules.zed.extraSettings.ssh_connections = [
+                  {
+                    host = "zuhause.h-h.win";
+                    username = "hannes";
+                    args = [ ];
+                    projects = [
+                      { paths = [ "/home/hannes" ]; }
+                      { paths = [ "/home/hannes/nix_config" ]; }
+                    ];
+                  }
+                ];
+              };
             }
             ./specifics/hannes/config.nix
             ./specifics/backend/config.nix
