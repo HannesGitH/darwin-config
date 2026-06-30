@@ -114,7 +114,6 @@ in
 
   nix.extraOptions = ''
     extra-platforms = x86_64-darwin aarch64-darwin
-    sandbox = false
   '';
 
   # Auto upgrade nix package and the daemon service.
