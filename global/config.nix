@@ -140,14 +140,7 @@ in
   myModules.remoteBuilder = {
     enable = true;
     colleagueKeys = {
-      # device_dominik / age1rhh2cddzk7q4zj5wncxpyvqk0g805p9zm7t5lxy7aefw5jglte0sd4rxhq
-      dominik = "ssh-ed25519 REPLACE_WITH_DOMINIK_PUBKEY dominik";
-      # device_basti_root / age18nhucgr7rhqeg0wtelxlncmp8zqqejxpnzjcea83zexf5h6lufzqnjzp4r
-      basti = "ssh-ed25519 REPLACE_WITH_BASTI_PUBKEY basti";
-      # device_david_user / age1kn8x9gl4lz89mzldkj0g7jck5rzzwkgksakqpd25xyt4ce06r5dsqcv7h5
-      david = "ssh-ed25519 REPLACE_WITH_DAVID_PUBKEY david";
-      # device_david_root / age16xwwdr5765pmqr9v3ns7eenuy7uj65njvkw8cwsncu2dk0f4ypjqxxjpy0
-      # david-root = "ssh-ed25519 REPLACE_WITH_DAVID_ROOT_PUBKEY david-root";
+      david = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO2NPgDxUfqvfQs/JA0fUMG5YXY1pj1HWizXN/ihmfk7 david";
     };
   };
 
