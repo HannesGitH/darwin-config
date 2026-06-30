@@ -33,7 +33,6 @@ in
     git
     git-lfs
     rename
-    nil
     autojump
     go
     inputs.nix-search-cli.packages.${pkgs.system}.default
