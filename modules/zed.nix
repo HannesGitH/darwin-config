@@ -33,13 +33,35 @@ in
     enable = mkEnableOption "Zed editor with darwin-config defaults";
 
     editPrediction = {
+      provider = mkOption {
+        type = types.enum [
+          "zed"
+          "local"
+        ];
+        default = "zed";
+        description = ''
+          Which edit-prediction backend Zed should use:
+
+          - `zed` *(default)*: Zed's own hosted Zeta service. No local
+            model, GPU, or RAM cost; requires a zed.dev sign-in. This is
+            the default so machines don't run a local LLM unless they
+            explicitly opt in.
+          - `local`: the Metal-accelerated `mlx_lm.server` from
+            `modules/ai.nix`. Fully offline and sign-in free, but keeps
+            the model resident in RAM and uses the GPU. When selecting
+            this, also set `myModules.ai.enable = true` and keep `preset`
+            in sync with `myModules.ai.preset`.
+        '';
+      };
+
       preset = mkOption {
         type = types.enum (builtins.attrNames presets);
         default = "zeta-2.1-3bit";
         description = ''
-          Which model preset Zed's edit-prediction should target. This
-          selects both the `prompt_format` and the model id that Zed
-          sends to the local MLX server.
+          Which model preset Zed's edit-prediction should target when
+          `provider = "local"`. This selects both the `prompt_format` and
+          the model id that Zed sends to the local MLX server. It has no
+          effect when `provider = "zed"` (the hosted service).
 
           Must match `myModules.ai.preset` (the backend that actually
           serves the model). Both default to the same value, so normally
@@ -468,29 +490,37 @@ in
           vim_mode = false;
 
           # ---- Edit prediction (a.k.a. inline AI completions) ------------------
-          # Served by the local `mlx_lm.server` set up in `modules/ai.nix`
-          # (enabled from `global/config.nix` via `myModules.ai.enable`).
-          # On machines using both modules, edit predictions Just Work™ with
-          # no zed.dev sign-in -- Metal-accelerated, fully local, running
-          # Zeta 2.1 (Zed's own edit-prediction model) by default.
+          # Selected by `myModules.zed.editPrediction.provider`:
           #
-          # The model + prompt_format come from the selected
-          # `myModules.zed.editPrediction.preset`, which must match the
-          # backend's `myModules.ai.preset` (both default to `zeta-2.1-3bit`).
-          # The port is hardcoded here because home-manager can't read the
-          # system module's options -- keep in sync with `myModules.ai.port`.
+          # - `"zed"` *(default)*: Zed's own hosted Zeta service. No local
+          #   model, GPU, or RAM cost; uses a zed.dev sign-in. This is the
+          #   default so machines don't run a local LLM unless they opt in.
+          # - `"local"`: the Metal-accelerated `mlx_lm.server` from
+          #   `modules/ai.nix` (enable via `myModules.ai.enable`). Fully
+          #   offline and sign-in free, running Zeta 2.1 (Zed's own
+          #   edit-prediction model) by default. The model + prompt_format
+          #   come from `editPrediction.preset`, which must match the
+          #   backend's `myModules.ai.preset`. The port is hardcoded here
+          #   because home-manager can't read the system module's options
+          #   -- keep in sync with `myModules.ai.port`.
           #
-          # To opt out, override via `extraSettings.edit_predictions.provider`
-          # (e.g. `"zed"` for the hosted service, `"copilot"`, or `"none"`).
-          edit_predictions = {
-            provider = "open_ai_compatible_api";
-            open_ai_compatible_api = {
-              api_url = "http://localhost:8080/v1/completions";
-              model = epPreset.model;
-              prompt_format = epPreset.promptFormat;
-              max_output_tokens = 512;
-            };
-          };
+          # For other providers (`"copilot"`, `"none"`, ...) override via
+          # `extraSettings.edit_predictions.provider`.
+          edit_predictions =
+            if cfg.editPrediction.provider == "local" then
+              {
+                provider = "open_ai_compatible_api";
+                open_ai_compatible_api = {
+                  api_url = "http://localhost:8080/v1/completions";
+                  model = epPreset.model;
+                  prompt_format = epPreset.promptFormat;
+                  max_output_tokens = 512;
+                };
+              }
+            else
+              {
+                provider = "zed";
+              };
 
           ui_font_size = 15;
           buffer_font_size = 14;

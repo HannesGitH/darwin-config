@@ -100,14 +100,18 @@ in
     ];
   };
 
-  # Local AI backend for Zed's edit-prediction feature. The module
-  # (`modules/ai.nix`) runs a Metal-accelerated `mlx_lm.server` and serves
-  # the model selected by `myModules.ai.preset` (default `zeta-2.1-3bit`,
-  # Zed's own edit-prediction model -- downloaded from HuggingFace on first
-  # start). The Zed side is wired up in `modules/zed.nix` via the
-  # `open_ai_compatible_api` edit-prediction provider. The model is shared
-  # with `myModules.zed.editPrediction.preset` (keep them in sync).
-  myModules.ai.enable = true;
+  # Local AI backend for Zed's edit-prediction feature. Disabled by
+  # default: we don't run a local LLM unless a host explicitly opts in.
+  # Zed's edit-prediction instead uses the hosted Zeta service
+  # (`myModules.zed.editPrediction.provider = "zed"`, the module default).
+  #
+  # To go fully local/offline instead, set `myModules.ai.enable = true`
+  # here *and* `myModules.zed.editPrediction.provider = "local"`: the
+  # module (`modules/ai.nix`) runs a Metal-accelerated `mlx_lm.server`
+  # serving the model from `myModules.ai.preset` (default `zeta-2.1-3bit`,
+  # Zed's own edit-prediction model). Keep that preset in sync with
+  # `myModules.zed.editPrediction.preset`.
+  myModules.ai.enable = false;
 
   nix.extraOptions = ''
     extra-platforms = x86_64-darwin aarch64-darwin
