@@ -126,6 +126,31 @@ in
   nix.settings.trusted-users = [ "blingmember" ];
   system.primaryUser = "blingmember";
 
+  # Expose this machine as a remote Nix builder for trusted colleagues.
+  # The security model (dedicated unprivileged account + forced
+  # store-serve command at both the authorized_keys and sshd layers)
+  # lives in modules/remote-builder.nix.
+  #
+  # !! Fill in each colleague's SSH *public* key below. These are the
+  # keys the age identities in .sops.yaml were derived from via
+  # `ssh-to-age` -- that conversion is one-way, so the ssh-ed25519 line
+  # cannot be recovered from the age key and must be pasted here.
+  #
+  # After switching, enable SSH once:  sudo systemsetup -setremotelogin on
+  myModules.remoteBuilder = {
+    enable = true;
+    colleagueKeys = {
+      # device_dominik / age1rhh2cddzk7q4zj5wncxpyvqk0g805p9zm7t5lxy7aefw5jglte0sd4rxhq
+      dominik = "ssh-ed25519 REPLACE_WITH_DOMINIK_PUBKEY dominik";
+      # device_basti_root / age18nhucgr7rhqeg0wtelxlncmp8zqqejxpnzjcea83zexf5h6lufzqnjzp4r
+      basti = "ssh-ed25519 REPLACE_WITH_BASTI_PUBKEY basti";
+      # device_david_user / age1kn8x9gl4lz89mzldkj0g7jck5rzzwkgksakqpd25xyt4ce06r5dsqcv7h5
+      david = "ssh-ed25519 REPLACE_WITH_DAVID_PUBKEY david";
+      # device_david_root / age16xwwdr5765pmqr9v3ns7eenuy7uj65njvkw8cwsncu2dk0f4ypjqxxjpy0
+      # david-root = "ssh-ed25519 REPLACE_WITH_DAVID_ROOT_PUBKEY david-root";
+    };
+  };
+
   nix.settings.substituters = [
     "https://nixos-cache-proxy.cofob.dev"
   ];

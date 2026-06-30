@@ -98,6 +98,7 @@
         )
         ./global/config.nix
         ./modules/ai.nix
+        ./modules/remote-builder.nix
       ]
       ++ secretsModules;
     in
