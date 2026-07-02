@@ -34,6 +34,13 @@
 
     zed.url = "github:HannesGitH/zed/my-fix-collection";
 
+    # Declarative, source-built Zed extensions (grammars + wasm). Consumed
+    # by modules/zed.nix to install the sebb3 Nix-extension fork (runnable
+    # flake tasks + comment-based language injection) with its
+    # tree-sitter-nix grammar pinned to the injection-comment PR.
+    nix-zed-extensions.url = "github:DuskSystems/nix-zed-extensions";
+    nix-zed-extensions.inputs.nixpkgs.follows = "nixpkgs";
+
     zsh-nix-shell = {
       url = "github:chisui/zsh-nix-shell/v0.7.0";
       flake = false;

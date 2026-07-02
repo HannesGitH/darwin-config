@@ -90,6 +90,32 @@ in
     };
 
     extensions = {
+      strategy = mkOption {
+        type = types.enum [
+          "auto"
+          "registry"
+        ];
+        default = "auto";
+        description = ''
+          How the extensions below are installed:
+
+          - `auto` *(default)*: build each extension from source via
+            nix-zed-extensions and drop it into Zed's `installed` dir --
+            pinned to the flake lock, reproducible, and offline after the
+            first build. Any id nix-zed-extensions doesn't package
+            (currently `ayu`, `rust`) automatically falls back to Zed's
+            runtime registry auto-install.
+          - `registry`: install everything through Zed's runtime
+            auto-install (`programs.zed-editor.extensions`), i.e. the
+            pre-nix-zed-extensions behavior. Nothing is built from source
+            (the `nixInjectionFork` grammar fork still is -- it has no
+            registry equivalent).
+
+          The first `auto` rebuild compiles each extension's wasm (and any
+          tree-sitter grammar), so expect some one-off build time; the
+          results are cached afterwards.
+        '';
+      };
       flutter = mkOption {
         type = types.bool;
         default = true;
@@ -104,6 +130,31 @@ in
         type = types.bool;
         default = true;
         description = "Install the Nix extension.";
+      };
+      nixInjectionFork = mkOption {
+        type = types.bool;
+        default = false;
+        description = ''
+          Install the Nix extension from the sebb3 fork instead of the
+          registry `nix` extension. The fork adds runnable flake tasks and
+          dynamic comment-based language injection: a comment naming a
+          language (e.g. `# bash` or `/* python */`) before a string
+          injects that language's syntax highlighting into the string.
+
+          Both the extension and its bundled tree-sitter-nix grammar are
+          built from source via nix-zed-extensions
+          (`programs.zed-editor-extensions`), pinned to the fork commits:
+            - grammar:   sebb3/tree-sitter-nix @ injection-comment
+                         (nix-community/tree-sitter-nix#166)
+            - extension: sebb3/nix @ main
+                         (zed-extensions/nix#49)
+          Both PRs are pending upstream merge; once they land, drop this
+          toggle and flip `extensions.nix` back on.
+
+          Takes precedence over `extensions.nix`: enabling it drops the
+          registry `nix` id from the auto-installed set so the two Nix
+          extensions don't fight over the same install slot.
+        '';
       };
       comment = mkOption {
         type = types.bool;
@@ -342,6 +393,80 @@ in
         // lib.optionalAttrs cfg.mcp.figma.enable {
           figma = mkRemoteServer figmaUrl;
         };
+
+      # ---- Extension resolution --------------------------------------------
+      # One wanted-set (by Zed registry id) resolved into two install paths:
+      #
+      #   * source-built (preferred): anything nix-zed-extensions packages is
+      #     built from source and dropped into Zed's `installed` dir via
+      #     `programs.zed-editor-extensions` -- pinned to the flake lock,
+      #     reproducible, offline after the first build.
+      #   * registry (fallback): ids nix-zed-extensions doesn't package
+      #     (currently `ayu`, `rust`) fall back to Zed's runtime auto-install
+      #     via `programs.zed-editor.extensions`.
+      #
+      # `extensions.strategy = "registry"` forces the whole set back onto
+      # auto-install (source builds skipped, fork excepted).
+      wantedExtensions = lib.unique (
+        [
+          "ayu"
+          "toml"
+        ]
+        ++ optionals cfg.extensions.flutter [ "dart" ]
+        # Base `nix`: registry id only when the fork is off. The fork is a
+        # source build appended to `sourcePackages` below.
+        ++ optionals (cfg.extensions.nix && !cfg.extensions.nixInjectionFork) [ "nix" ]
+        # The Rust extension only adds toolchain helpers; rust-analyzer
+        # itself is bundled with Zed, so this stays optional.
+        ++ optionals cfg.extensions.rust [ "rust" ]
+        # `comment` is the registry id for thedadams/zed-comment.
+        ++ optionals cfg.extensions.comment [ "comment" ]
+        # `cspell` is the registry id for mantou132/zed-cspell. The
+        # dictionaries are wired up via the global config in home.file
+        # below (the LSP ignores Zed's `lsp.cspell.settings`).
+        ++ optionals cfg.extensions.spellcheck [ "cspell" ]
+        # Per-user escape hatch for extensions without a dedicated toggle.
+        ++ cfg.extraExtensions
+      );
+
+      # Split the wanted set by whether nix-zed-extensions packages it.
+      preferSource = cfg.extensions.strategy != "registry";
+      isPackaged = id: builtins.hasAttr id pkgs.zed-extensions;
+      sourceIds = optionals preferSource (builtins.filter isPackaged wantedExtensions);
+      registryIds = builtins.filter (id: !(builtins.elem id sourceIds)) wantedExtensions;
+
+      # The pinned Nix fork (grammar overridden to the injection-comment PR).
+      # Always a source build -- it's a fork, not a registry extension -- so
+      # it's independent of `strategy`. See `extensions.nixInjectionFork`.
+      nixForkExtension =
+        let
+          nixGrammar = pkgs.zed-grammars.nix_nix.overrideAttrs (_: {
+            src = pkgs.fetchFromGitHub {
+              owner = "sebb3";
+              repo = "tree-sitter-nix";
+              rev = "1c903f05d9ff4b74f0836018729ecbefdd0fbdd0";
+              hash = "sha256-KQ00kJo350Xhj2pFaaYDcgXvv1CxunnhWIBZth2e5es=";
+            };
+          });
+        in
+        (pkgs.zed-extensions.nix.override {
+          zed-grammars = pkgs.zed-grammars // {
+            nix_nix = nixGrammar;
+          };
+        }).overrideAttrs
+          (_: {
+            src = pkgs.fetchFromGitHub {
+              owner = "sebb3";
+              repo = "nix";
+              rev = "926b7150ebba7631cd1ba9227445a3d7e7ec4665";
+              hash = "sha256-ukS2q0nt8kG5xMc+WiBHZMu66mkBjt9iAnj9gzlA9JQ=";
+            };
+          });
+
+      # Final list handed to programs.zed-editor-extensions.
+      sourcePackages =
+        map (id: pkgs.zed-extensions.${id}) sourceIds
+        ++ lib.optional cfg.extensions.nixInjectionFork nixForkExtension;
     in
     mkIf cfg.enable {
       programs.zed-editor = {
@@ -420,27 +545,10 @@ in
           else
             inputs.nixpkgsunstable.legacyPackages.${pkgs.system}.zed-editor;
         enable = true;
-        extensions = lib.unique (
-          [
-            "ayu"
-            "toml"
-          ]
-          ++ optionals cfg.extensions.flutter [ "dart" ]
-          ++ optionals cfg.extensions.nix [ "nix" ]
-          # The Rust extension only adds toolchain helpers; rust-analyzer
-          # itself is bundled with Zed, so this stays optional.
-          ++ optionals cfg.extensions.rust [ "rust" ]
-          # `comment` is the registry id for thedadams/zed-comment.
-          ++ optionals cfg.extensions.comment [ "comment" ]
-          # `cspell` is the registry id for mantou132/zed-cspell. The
-          # dictionaries are wired up via the global config in home.file
-          # below (the LSP ignores Zed's `lsp.cspell.settings`).
-          ++ optionals cfg.extensions.spellcheck [ "cspell" ]
-          # Per-user escape hatch for extensions without a dedicated
-          # toggle. `lib.unique` above keeps things tidy if a user
-          # accidentally lists one that's already enabled by a toggle.
-          ++ cfg.extraExtensions
-        );
+        # Registry fallback only -- the source-built ids are installed via
+        # `programs.zed-editor-extensions` below. See the resolver in the
+        # `let` above (`wantedExtensions` -> `registryIds`/`sourceIds`).
+        extensions = registryIds;
 
         # Shared defaults are defined inline below; per-user tweaks come in
         # via `cfg.extraSettings` (see e.g. `specifics/hannes/home.nix`).
@@ -846,6 +954,16 @@ in
 
           context_servers = contextServers;
         } cfg.extraSettings;
+      };
+
+      # Source-built extensions dropped into Zed's `installed` dir (pinned +
+      # reproducible). Content comes from the resolver in the `let` above:
+      # every packaged id under strategy `auto`, plus the grammar-overridden
+      # Nix fork when `extensions.nixInjectionFork` is on. Empty (module
+      # inactive) under strategy `registry` with the fork off.
+      programs.zed-editor-extensions = lib.mkIf (sourcePackages != [ ]) {
+        enable = true;
+        packages = sourcePackages;
       };
 
       home.packages = lib.optional (cfg.fontFamily == "FiraCode Nerd Font") pkgs.nerd-fonts.fira-code;

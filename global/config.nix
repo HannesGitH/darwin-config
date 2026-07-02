@@ -23,6 +23,11 @@ in
       });
     })
     inputs.zed.overlays.default
+    # Exposes `pkgs.zed-grammars` / `pkgs.zed-extensions`, consumed by
+    # modules/zed.nix when `myModules.zed.extensions.nixInjectionFork` is
+    # on. `home-manager.useGlobalPkgs = true` means home-manager inherits
+    # this overlay, so the extension builder resolves there too.
+    inputs.nix-zed-extensions.overlays.default
   ];
 
   environment.variables.LANG = "en_GB.UTF-8";

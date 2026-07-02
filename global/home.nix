@@ -9,6 +9,9 @@
 
   imports = [
     inputs.zen-browser.homeModules.beta
+    # Adds `programs.zed-editor-extensions` (source-built Zed extensions),
+    # used by modules/zed.nix's `extensions.nixInjectionFork` toggle.
+    inputs.nix-zed-extensions.homeManagerModules.default
     ../modules/zed.nix
     ../modules/git.nix
   ];
@@ -30,6 +33,12 @@
     # Extension toggles default to `true` in `modules/zed.nix`, so there's
     # no need to restate them here. Per-user opt-outs live in
     # `specifics/<user>/home.nix`
+
+    # Use the sebb3 Nix-extension fork (runnable flake tasks + dynamic
+    # comment-based language injection). Off by default in the module;
+    # opt in here. Supersedes the registry `nix` extension. Remove once
+    # nix-community/tree-sitter-nix#166 + zed-extensions/nix#49 land.
+    extensions.nixInjectionFork = true;
     mcp = {
       linear.enable = true;
       dart = {
