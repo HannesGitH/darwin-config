@@ -698,6 +698,7 @@ in
           };
 
           git_panel = {
+            group_by = "none";
             tree_view = true;
             dock = "left";
           };
@@ -753,7 +754,7 @@ in
             };
             model_parameters = [ ];
 
-            default_profile = "ask";
+            default_profile = "write";
 
             # Custom agent profiles (per-task tool + context-server
             # allowlists). Tool entries are harmless on hosts where a given
@@ -902,7 +903,12 @@ in
                 copy_path.default = "allow";
                 "mcp:dart:add_roots".default = "allow";
                 "mcp:dart:analyze_files".default = "allow";
+                "mcp:dart:connect_dart_tooling_daemon".default = "allow";
                 "mcp:dart:dart_format".default = "allow";
+                "mcp:dart:flutter_driver".default = "allow";
+                "mcp:dart:get_runtime_errors".default = "allow";
+                "mcp:dart:get_widget_tree".default = "allow";
+                "mcp:dart:hot_restart".default = "allow";
                 "mcp:dart:hover".default = "allow";
                 "mcp:dart:launch_app".default = "allow";
                 "mcp:dart:list_devices".default = "allow";
@@ -915,6 +921,8 @@ in
                 "mcp:linear:get_diff_threads".default = "allow";
                 "mcp:linear:get_issue".default = "allow";
                 "mcp:linear:list_comments".default = "allow";
+                "mcp:linear:list_diffs".default = "allow";
+                "mcp:linear:list_teams".default = "allow";
                 "mcp:linear:search_documentation".default = "allow";
                 "mcp:sentry-mcp:find_organizations".default = "allow";
                 "mcp:sentry-mcp:get_sentry_resource".default = "allow";
@@ -925,6 +933,11 @@ in
                 edit_file = {
                   always_allow = [
                     { pattern = "^app/\\.zed/"; }
+                  ];
+                };
+                write_file = {
+                  always_allow = [
+                    { pattern = "^zed-single-launch-debug/\\.zed/"; }
                   ];
                 };
                 delete_path = {
