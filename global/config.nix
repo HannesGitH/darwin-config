@@ -43,6 +43,7 @@ in
     btop
 
     nixd
+    nil
 
     firefox
 
