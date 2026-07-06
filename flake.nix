@@ -149,7 +149,12 @@
           modules = globalModules ++ [
             {
               # otherwise home-manager will ignore this user (and its sharedModules)
-              home-manager.users."blingmember" = { };
+              home-manager.users."blingmember" = {
+                # Ride upstream Zed releases directly (via the `zed` flake
+                # input) instead of nixpkgs' `unstable` package, matching
+                # maccaroni.
+                myModules.zed.channel = "nightly";
+              };
             }
           ];
         };
