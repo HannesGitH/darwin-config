@@ -192,6 +192,8 @@
       # per-user overrides.
       # on a new machine, run `mergiraf languages --gitattributes >> ~/.gitattributes`
       core.attributesfile = "~/.gitattributes";
+      core.untrackedCache = true;
+      core.fsmonitor = true;
       merge = {
         mergiraf = {
           name = "mergiraf";
