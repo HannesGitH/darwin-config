@@ -32,7 +32,7 @@
       inputs.home-manager.follows = "home-manager";
     };
 
-    zed.url = "github:HannesGitH/zed/my-fix-collection";
+    zed.url = "github:zed-industries/zed";
 
     # Declarative, source-built Zed extensions (grammars + wasm). Consumed
     # by modules/zed.nix to install the sebb3 Nix-extension fork (runnable
