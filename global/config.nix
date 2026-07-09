@@ -195,8 +195,9 @@ in
       largesize = 50;
       show-process-indicators = true;
       persistent-apps = [
+        "/Users/blingmember/Applications/Slack.app"
         "/Applications/Nix\ Apps/Firefox.app"
-        "${pkgs.kitty}/Applications/kitty.app"
+        "/Applications/Nix\ Apps/kitty.app"
       ];
     };
     NSGlobalDomain = {
