@@ -165,6 +165,15 @@ in
           TODO/NOTE/FIXME-style comment tags via tree-sitter injections.
         '';
       };
+      openscad = mkOption {
+        type = types.bool;
+        default = false;
+        description = ''
+          Install OpenSCAD support from johann-cm/zed-openscad, pinned to its
+          source commit instead of resolving the similarly named registry
+          extension.
+        '';
+      };
       spellcheck = mkOption {
         type = types.bool;
         default = true;
@@ -463,10 +472,24 @@ in
             };
           });
 
+      # Keep OpenSCAD's source provenance explicit. This revision currently
+      # matches the upstream extension byte-for-byte, but it is fetched from
+      # the requested johann-cm fork so later registry changes cannot replace
+      # it unnoticed.
+      openscadForkExtension = pkgs.zed-extensions.openscad.overrideAttrs (_: {
+        src = pkgs.fetchFromGitHub {
+          owner = "johann-cm";
+          repo = "zed-openscad";
+          rev = "39dae407545f99a911e3aa20fd9c9a9e8bf61d26";
+          hash = "sha256-AZLaGlcA4Rx+dH72KdTiaIAYRbrWVyEgMBtEvIu1yII=";
+        };
+      });
+
       # Final list handed to programs.zed-editor-extensions.
       sourcePackages =
         map (id: pkgs.zed-extensions.${id}) sourceIds
-        ++ lib.optional cfg.extensions.nixInjectionFork nixForkExtension;
+        ++ lib.optional cfg.extensions.nixInjectionFork nixForkExtension
+        ++ lib.optional cfg.extensions.openscad openscadForkExtension;
     in
     mkIf cfg.enable {
       programs.zed-editor = {

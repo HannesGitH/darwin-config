@@ -39,6 +39,11 @@
     # opt in here. Supersedes the registry `nix` extension. Remove once
     # nix-community/tree-sitter-nix#166 + zed-extensions/nix#49 land.
     extensions.nixInjectionFork = true;
+
+    # Source-build the johann-cm/zed-openscad fork, rather than the
+    # similarly named registry extension.
+    extensions.openscad = true;
+
     mcp = {
       linear.enable = true;
       dart = {
