@@ -441,15 +441,16 @@ in
       # Split the wanted set by whether nix-zed-extensions packages it.
       preferSource = cfg.extensions.strategy != "registry";
       isPackaged = id: builtins.hasAttr id pkgs.zed-extensions;
-      # FIXME: Route Dart through Zed's registry until its grammar manager accepts
-      # the Nix-provided prebuilt WASM without writing a checkout/cache beside it.
-      # Remove once nix-zed-extensions and Zed agree on an immutable grammar layout.
-      registryOnlyExtensions = [ "dart" ];
-
+      # FIXME: Zed currently creates a grammar checkout/cache in the extension
+      # directory. Keep Dart Nix-built but seed it as a writable copy until
+      # Zed accepts an immutable prebuilt grammar layout.
+      mutableSourceIds = optionals cfg.extensions.flutter [ "dart" ];
       sourceIds = optionals preferSource (
-        builtins.filter (id: isPackaged id && !(builtins.elem id registryOnlyExtensions)) wantedExtensions
+        builtins.filter (id: isPackaged id && !(builtins.elem id mutableSourceIds)) wantedExtensions
       );
-      registryIds = builtins.filter (id: !(builtins.elem id sourceIds)) wantedExtensions;
+      registryIds = builtins.filter (
+        id: !(builtins.elem id sourceIds) && !(builtins.elem id mutableSourceIds)
+      ) wantedExtensions;
 
       # The pinned Nix fork (grammar overridden to the injection-comment PR).
       # Always a source build -- it's a fork, not a registry extension -- so
@@ -586,6 +587,10 @@ in
         # individual leaf keys (or whole nested attrsets) can be overridden
         # without restating the rest of the defaults.
         userSettings = lib.recursiveUpdate {
+          # zedSettingsActivation merges existing settings, so retain an explicit
+          # false to clear the previous registry-installed Dart extension.
+          auto_install_extensions.dart = false;
+
           icon_theme = "Material Icon Theme";
 
           theme = {
@@ -1007,6 +1012,38 @@ in
       programs.zed-editor-extensions = lib.mkIf (sourcePackages != [ ]) {
         enable = true;
         packages = sourcePackages;
+      };
+
+      home.activation = lib.mkIf cfg.extensions.flutter {
+        seedZedDartExtension = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+          install_dir="${config.home.homeDirectory}/Library/Application Support/Zed/extensions/installed"
+          extension_dir="$install_dir/dart"
+          marker="$extension_dir/.nix-extension-source"
+          source_path="${pkgs.zed-extensions.dart}/share/zed/extensions/dart"
+          current_source=""
+
+          if [ -f "$marker" ]; then
+            read -r current_source < "$marker"
+          fi
+
+          if [ "$current_source" != "$source_path" ]; then
+            staging_dir="$install_dir/dart.nix-staging"
+            rm -rf "$staging_dir"
+            mkdir -p "$install_dir"
+            cp -R "$source_path" "$staging_dir"
+            chmod u+rwx "$staging_dir" "$staging_dir/grammars"
+            printf '%s\n' "$source_path" > "$staging_dir/.nix-extension-source"
+            rm -rf "$extension_dir"
+            mv "$staging_dir" "$extension_dir"
+          fi
+        '';
+        clearZedDartRegistryInstall = lib.hm.dag.entryAfter [ "zedSettingsActivation" ] ''
+          settings_path="${config.home.homeDirectory}/.config/zed/settings.json"
+          settings_staging_path="$settings_path.nix-staging"
+
+          ${pkgs.jq}/bin/jq 'del(.auto_install_extensions.dart)' "$settings_path" > "$settings_staging_path"
+          mv "$settings_staging_path" "$settings_path"
+        '';
       };
 
       home.packages = lib.optional (cfg.fontFamily == "FiraCode Nerd Font") pkgs.nerd-fonts.fira-code;
