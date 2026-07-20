@@ -441,7 +441,14 @@ in
       # Split the wanted set by whether nix-zed-extensions packages it.
       preferSource = cfg.extensions.strategy != "registry";
       isPackaged = id: builtins.hasAttr id pkgs.zed-extensions;
-      sourceIds = optionals preferSource (builtins.filter isPackaged wantedExtensions);
+      # FIXME: Route Dart through Zed's registry until its grammar manager accepts
+      # the Nix-provided prebuilt WASM without writing a checkout/cache beside it.
+      # Remove once nix-zed-extensions and Zed agree on an immutable grammar layout.
+      registryOnlyExtensions = [ "dart" ];
+
+      sourceIds = optionals preferSource (
+        builtins.filter (id: isPackaged id && !(builtins.elem id registryOnlyExtensions)) wantedExtensions
+      );
       registryIds = builtins.filter (id: !(builtins.elem id sourceIds)) wantedExtensions;
 
       # The pinned Nix fork (grammar overridden to the injection-comment PR).
