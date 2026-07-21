@@ -169,6 +169,10 @@ in
     colleagueKeys = {
       david = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIO2NPgDxUfqvfQs/JA0fUMG5YXY1pj1HWizXN/ihmfk7 david";
       david-root = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOI63joa8qSpzGr3Otp7zCsuqx3zu7fRndi1U9HEnnO8 david-root";
+
+      # Allows this Mac's root Nix daemon to test the remote-builder path
+      # against itself. Keep this in sync if the local root SSH key rotates.
+      selftest = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJj2lauu5EzZAW9k1f3l04DLiUNqGGoel+yM4ODpU24H blingmember@MacBook-Pro.local";
     };
   };
 
