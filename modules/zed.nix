@@ -320,9 +320,9 @@ in
       # Resolve the active edit-prediction preset (HF model + prompt format).
       epPreset = presets.${cfg.editPrediction.preset};
 
-      # Pin the bridge binary to the nixpkgs nodejs so this works on hosts
-      # that don't have a system-wide npx (e.g. fresh `maccaroni` setups).
-      npx = lib.getExe' pkgs.nodejs "npx";
+      # Pin the bridge binary to Node 26 so this works on hosts that don't
+      # have a system-wide npx (e.g. fresh `maccaroni` setups).
+      npx = lib.getExe' pkgs.nodejs_26 "npx";
 
       mkRemoteServer = url: {
         command = npx;
