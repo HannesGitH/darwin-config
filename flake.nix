@@ -4,18 +4,18 @@
   # NOTE: `inputs` must be a static attrset literal -- modern Nix rejects
   # thunks (e.g. a `let ... in { ... }` wrapper) here. If you need to bump
   # the nixpkgs/nix-darwin/home-manager release line, update the three
-  # `25.11`s below in lock-step.
+  # `26.05`s below in lock-step.
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
     nixpkgsunstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    nix-darwin.url = "github:LnL7/nix-darwin/nix-darwin-25.11";
+    nix-darwin.url = "github:LnL7/nix-darwin/nix-darwin-26.05";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
 
     nix-index-database.url = "github:nix-community/nix-index-database";
     nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
 
-    home-manager.url = "github:nix-community/home-manager/release-25.11";
+    home-manager.url = "github:nix-community/home-manager/release-26.05";
 
     prismLauncher.url = "github:HannesGitH/prismlauncherc";
     nix-search-cli.url = "github:peterldowns/nix-search-cli";
