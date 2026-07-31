@@ -60,6 +60,19 @@
   programs.zen-browser = {
     enable = true;
 
+    # zen-browser-flake #361 made "signed" the Darwin default: the upstream
+    # .app is installed untouched (keeping its signature, and with it 1Password,
+    # iCloud Passwords and Touch ID) and policies are routed through
+    # targets.darwin.defaults instead of wrapFirefox. That needs the
+    # `lib.functionArgs package.override ? cfg` guard in home-manager's
+    # mkFirefoxModule, which only exists on HM master -- our home-manager input
+    # tracks release-26.05, whose wrapPackage unconditionally does
+    # `package.override { cfg = ...; }` and so fails on the unwrapped .app with
+    # "function 'anonymous lambda' called with unexpected argument 'cfg'".
+    # "wrapped" is the pre-#361 behaviour. Drop this once release-26.06 (or
+    # a HM release carrying that guard) lands.
+    darwin.packageMode = "wrapped";
+
     # Declare a single default profile so that profiles.ini always
     # contains a Default=1 entry. Without this, every Nix rebuild
     # produces a new install-hash for Zen, which Zen treats as a
