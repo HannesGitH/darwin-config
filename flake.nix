@@ -2,20 +2,25 @@
   description = "darwin config for bling";
 
   # NOTE: `inputs` must be a static attrset literal -- modern Nix rejects
-  # thunks (e.g. a `let ... in { ... }` wrapper) here. If you need to bump
-  # the nixpkgs/nix-darwin/home-manager release line, update the three
-  # `26.05`s below in lock-step.
+  # thunks (e.g. a `let ... in { ... }` wrapper) here. nixpkgs/nix-darwin/
+  # home-manager track unstable/master rather than a release line, so that
+  # inputs which themselves target nixpkgs-unstable (zen-browser, zed,
+  # nix-zed-extensions) keep evaluating against our pin. To go back to a
+  # release line, move all three below in lock-step (`nixos-XX.YY`,
+  # `nix-darwin-XX.YY`, `release-XX.YY`).
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    # Kept as its own input so `modules/ai.nix` / `modules/zed.nix` keep
+    # working unchanged; now resolves to the same rev as `nixpkgs` above.
     nixpkgsunstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    nix-darwin.url = "github:LnL7/nix-darwin/nix-darwin-26.05";
+    nix-darwin.url = "github:LnL7/nix-darwin/master";
     nix-darwin.inputs.nixpkgs.follows = "nixpkgs";
 
     nix-index-database.url = "github:nix-community/nix-index-database";
     nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
 
-    home-manager.url = "github:nix-community/home-manager/release-26.05";
+    home-manager.url = "github:nix-community/home-manager/master";
 
     prismLauncher.url = "github:HannesGitH/prismlauncherc";
     nix-search-cli.url = "github:peterldowns/nix-search-cli";
@@ -27,6 +32,11 @@
     sops-nix.url = "github:Mic92/sops-nix";
 
     zen-browser = {
+      # Needs a nixpkgs with `ffmpeg_9` (zen-browser-flake#381), i.e. unstable
+      # -- release lines up to 26.05 only carry `ffmpeg_8`. An overlay can't
+      # paper that over: zen builds its packages from its own
+      # `nixpkgs.legacyPackages`, which never sees `nixpkgs.overlays` from
+      # this config, so the `follows` below has to point at unstable.
       url = "github:0xc000022070/zen-browser-flake";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
