@@ -170,6 +170,9 @@
       eval "$(/opt/homebrew/bin/brew shellenv)"
       export PATH="$HOME/fvm/default/bin:$PATH"
 
+      # User-installed binaries, incl. the cursor-agent CLI (`agent`).
+      export PATH="$HOME/.local/bin:$PATH"
+
       # Option+Right / Option+Left to jump words (matches macOS Terminal/iTerm2 default escape sequences)
       bindkey "\e[1;3C" emacs-forward-word
       bindkey "\e[1;3D" emacs-backward-word
