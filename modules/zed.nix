@@ -79,13 +79,14 @@ in
       description = ''
         Which Zed package to install:
 
-        - `stable`: the `zed-editor` package from the `nixpkgsunstable` flake
-          input (i.e. whatever Zed release nixpkgs has shipped). This is the
-          better-tested option since the package goes through nixpkgs CI.
-        - `unstable`: the package built directly from the `zed` flake input
-          (`zed-industries/zed`, pinned by tag in `flake.nix`). Use this to
-          ride closer to upstream releases or to pin a specific Zed version
-          independently of nixpkgs.
+        - `unstable` *(default)*: the `zed-editor` package from the
+          `nixpkgsunstable` flake input (i.e. whatever Zed release nixpkgs
+          has shipped). The better-tested option, since the package goes
+          through nixpkgs CI.
+        - `nightly`: built directly from the `zed` flake input
+          (`zed-industries/zed`, pinned by `flake.lock`). Rides upstream's
+          nightly tip at the cost of compiling Zed locally -- see the
+          aarch64-darwin build workarounds on `package` below.
       '';
     };
 
@@ -542,31 +543,92 @@ in
             #      put on `$PATH` via `nativeBuildInputs` so that clang's
             #      `-fuse-ld=lld` driver flag can find `ld64.lld`.
             #
-            # Both patches run in the outer `buildPackage`, so
-            # `cargoArtifacts` (the dep build) stays cached -- only the
-            # `zed`/`cli` recompile and final link redo. (NB: editing
-            # `.cargo/config.toml` does invalidate cargo's own
-            # fingerprint cache inside the sandbox, so the final-crate
-            # compile re-runs end to end; that's intrinsic, not
-            # something this hack causes.)
+            # The two patches above run in the outer `buildPackage`, so on
+            # their own they leave `cargoArtifacts` (the dep build) cached --
+            # only the `zed`/`cli` recompile and final link redo. (NB: editing
+            # `.cargo/config.toml` does invalidate cargo's own fingerprint
+            # cache inside the sandbox, so the final-crate compile re-runs end
+            # to end; that's intrinsic, not something this hack causes.) The
+            # `src` override below is the exception -- see its comment.
             #
             # Revisit once upstream fixes this (e.g. by switching darwin
             # to `lto = "fat"`, dropping the cg=16 override, or shipping
             # cached binaries we can actually consume).
-            (inputs.zed.packages.${pkgs.system}.default.overrideAttrs (old: {
-              nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.lld ];
-              postPatch = (old.postPatch or "") + ''
-                substituteInPlace Cargo.toml \
-                  --replace-fail \
-                    'zed = { codegen-units = 16 }' \
-                    '# zed = { codegen-units = 16 } # patched out by darwin-config (modules/zed.nix) -- see comment there'
+            (
+              let
+                zedBase = inputs.zed.packages.${pkgs.system}.default;
+                inherit (zedBase.passthru) craneLib commonArgs;
 
-                substituteInPlace .cargo/config.toml \
-                  --replace-fail \
-                    'rustflags = ["-C", "symbol-mangling-version=v0", "--cfg", "tokio_unstable"]' \
-                    'rustflags = ["-C", "symbol-mangling-version=v0", "--cfg", "tokio_unstable", "-C", "link-arg=-fuse-ld=lld"]'
-              '';
-            }))
+                # 3. Restore `corgi-patches/` to the build source.
+                #
+                #    Upstream's `nix/build.nix` filters the checkout down to a
+                #    `topLevelIncludes` whitelist before handing it to crane.
+                #    zed-industries/zed@ee6badf ("Support building with corgi",
+                #    #63396, 2026-08-31) added
+                #
+                #        [patch.crates-io.scratch]
+                #        path = "corgi-patches/scratch"
+                #
+                #    to the workspace Cargo.toml but never added
+                #    `corgi-patches` to that whitelist (last touched
+                #    2026-06-30). The directory is therefore filtered out and
+                #    every nightly since then dies during dependency
+                #    resolution with:
+                #
+                #        error: failed to load source for dependency `scratch`
+                #        ... failed to read `.../corgi-patches/scratch/Cargo.toml`
+                #
+                #    The list below is upstream's verbatim, plus
+                #    `corgi-patches`. Drop this whole `src`/`cargoArtifacts`
+                #    override once upstream adds it -- watch `topLevelIncludes`
+                #    in zed's `nix/build.nix`.
+                src = builtins.path {
+                  path = inputs.zed;
+                  name = "source";
+                  filter =
+                    path: _type:
+                    let
+                      root = toString inputs.zed + "/";
+                      relPath = lib.removePrefix root path;
+                      firstComp = builtins.head (lib.path.subpath.components relPath);
+                    in
+                    builtins.elem firstComp [
+                      "crates"
+                      "assets"
+                      "extensions"
+                      "script"
+                      "tooling"
+                      "Cargo.toml"
+                      ".config"
+                      ".cargo"
+                      "corgi-patches"
+                    ];
+                };
+
+                #    The failure is in the *dependency* derivation, which crane
+                #    derives from `commonArgs.src` via `mkDummySrc`, so an
+                #    `overrideAttrs` on the outer package is not enough -- the
+                #    deps have to be rebuilt against the corrected source too.
+                #    Upstream's `passthru` exposes exactly what's needed to do
+                #    that without restating its ~90-line `buildPackage` call.
+                cargoArtifacts = craneLib.buildDepsOnly (commonArgs // { inherit src; });
+              in
+              zedBase.overrideAttrs (old: {
+                inherit src cargoArtifacts;
+                nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.lld ];
+                postPatch = (old.postPatch or "") + ''
+                  substituteInPlace Cargo.toml \
+                    --replace-fail \
+                      'zed = { codegen-units = 16 }' \
+                      '# zed = { codegen-units = 16 } # patched out by darwin-config (modules/zed.nix) -- see comment there'
+
+                  substituteInPlace .cargo/config.toml \
+                    --replace-fail \
+                      'rustflags = ["-C", "symbol-mangling-version=v0", "--cfg", "tokio_unstable"]' \
+                      'rustflags = ["-C", "symbol-mangling-version=v0", "--cfg", "tokio_unstable", "-C", "link-arg=-fuse-ld=lld"]'
+                '';
+              })
+            )
           else
             inputs.nixpkgsunstable.legacyPackages.${pkgs.system}.zed-editor;
         enable = true;

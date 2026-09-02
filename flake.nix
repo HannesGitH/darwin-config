@@ -105,6 +105,13 @@
             # of aborting activation. Backups land next to the originals as
             # `<name>.hm-backup` so they're recoverable if anything was lost.
             home-manager.backupFileExtension = "hm-backup";
+            # `backupFileExtension` on its own is single-shot: the second time
+            # the same path needs backing up, home-manager refuses to clobber
+            # the existing `<name>.hm-backup` and aborts activation with
+            # "Existing file ... would be clobbered by backing up ...".
+            # Zed's registry-installed extensions trip this on every upgrade.
+            # Keep only the most recent backup rather than failing the switch.
+            home-manager.overwriteBackup = true;
             home-manager.extraSpecialArgs = {
               inherit inputs;
             };

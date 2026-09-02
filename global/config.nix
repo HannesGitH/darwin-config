@@ -28,27 +28,6 @@ in
     # on. `home-manager.useGlobalPkgs = true` means home-manager inherits
     # this overlay, so the extension builder resolves there too.
     inputs.nix-zed-extensions.overlays.default
-    # nix-zed-extensions' builder CLI declares MSRV rustc 1.95, but the
-    # overlay above is applied onto our pinned nixpkgs (25.11), whose
-    # `rustPlatform` ships rustc 1.91 -- so the CLI fails to compile
-    # ("requires rustc 1.95"), cascading to every extension since each
-    # one runs the CLI in its build/install phase. Upstream builds the
-    # CLI with rust-overlay's latest stable; do the same here. `rust-bin`
-    # comes from the rust-overlay layer composed into the overlay above,
-    # so it's available on `final`. Only the CLI is retargeted; the
-    # extensions/grammars keep building against the pinned nixpkgs.
-    (final: prev: {
-      nix-zed-extensions = prev.nix-zed-extensions.override {
-        rustPlatform =
-          let
-            toolchain = final.rust-bin.stable.latest.minimal;
-          in
-          final.makeRustPlatform {
-            cargo = toolchain;
-            rustc = toolchain;
-          };
-      };
-    })
   ];
 
   environment.variables.LANG = "en_GB.UTF-8";
