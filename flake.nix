@@ -51,6 +51,15 @@
     nix-zed-extensions.url = "github:DuskSystems/nix-zed-extensions";
     nix-zed-extensions.inputs.nixpkgs.follows = "nixpkgs";
 
+    # Auto-retries `claude` on subscription rate limits and API overload by
+    # keeping the session alive in tmux. Upstream ships no flake and has zero
+    # npm deps (pure Node built-ins), so it is consumed as a plain source
+    # checkout and packaged in `modules/pkgs/claude-auto-retry`.
+    claude-auto-retry = {
+      url = "github:cheapestinference/claude-auto-retry";
+      flake = false;
+    };
+
     zsh-nix-shell = {
       url = "github:chisui/zsh-nix-shell/v0.7.0";
       flake = false;

@@ -16,6 +16,22 @@
         "type": "github"
       }
     },
+    "claude-auto-retry": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1787762395,
+        "narHash": "sha256-XJLTlRfq13qXRM/tddcGwDIQs3J3Ex8lJSN6+NoII3E=",
+        "owner": "cheapestinference",
+        "repo": "claude-auto-retry",
+        "rev": "cb99967f07931cf7a3b376f5b2c8c1537f283c33",
+        "type": "github"
+      },
+      "original": {
+        "owner": "cheapestinference",
+        "repo": "claude-auto-retry",
+        "type": "github"
+      }
+    },
     "crane": {
       "locked": {
         "lastModified": 1742317686,
@@ -516,6 +532,7 @@
     },
     "root": {
       "inputs": {
+        "claude-auto-retry": "claude-auto-retry",
         "frosted": "frosted",
         "home-manager": "home-manager",
         "mergiraf": "mergiraf",

@@ -14,6 +14,7 @@
     inputs.nix-zed-extensions.homeManagerModules.default
     ../modules/zed.nix
     ../modules/git.nix
+    ../modules/claude-auto-retry.nix
   ];
 
   # home.userName = "blingmember";
@@ -27,6 +28,12 @@
     #yarn
 
   ];
+
+  # Runs Claude Code inside tmux with a retry monitor, so a rate limit or an
+  # API overload parks the session instead of ending it. Declared rather than
+  # installed: `claude-auto-retry install` writes to `~/.zshrc`, which
+  # home-manager owns read-only. See modules/claude-auto-retry.nix.
+  myModules.claude-auto-retry.enable = true;
 
   myModules.zed = {
     enable = true;
