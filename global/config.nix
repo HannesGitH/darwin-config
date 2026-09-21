@@ -50,7 +50,21 @@ in
     nixd
     nil
 
-    firefox
+    # firefox-bin-unwrapped, not firefox: same reasoning as the
+    # zen-browser "signed" mode in global/home.nix. `firefox` runs the
+    # upstream .app through wrapFirefox, which replaces Contents/MacOS/firefox
+    # with a bash wrapper and drops Contents/_CodeSignature, leaving the bundle
+    # unsigned ("code object is not signed at all"). macOS 26 gates
+    # ~/Library/Application Support/Firefox behind TCC and matches the owner by
+    # code-signing identity, so an unsigned Firefox is not recognised as the
+    # owner of its own profile store and fails with "Your Firefox profile
+    # cannot be loaded. It may be missing or inaccessible."
+    #
+    # firefox-bin-unwrapped installs Mozilla's official .dmg untouched, keeping
+    # their Developer ID signature and with it a stable TCC identity across
+    # rebuilds (plus 1Password, iCloud Passwords and Touch ID). The wrapper only
+    # sets LD_LIBRARY_PATH, which does nothing on Darwin anyway.
+    firefox-bin-unwrapped
 
     (inputs.mergiraf.packages.${pkgs.system}.default.overrideAttrs (old: {
       doCheck = false;
