@@ -467,12 +467,18 @@ in
           };
         }).overrideAttrs
           (_: {
+            # Pin version + cargoHash to the fork too: otherwise both are
+            # inherited from upstream's generated `nix` entry and break
+            # (hash mismatch) whenever a `nix-zed-extensions` bump changes
+            # upstream's Cargo deps. Bump these together with `rev`.
+            version = "0.1.4";
             src = pkgs.fetchFromGitHub {
               owner = "sebb3";
               repo = "nix";
               rev = "926b7150ebba7631cd1ba9227445a3d7e7ec4665";
               hash = "sha256-ukS2q0nt8kG5xMc+WiBHZMu66mkBjt9iAnj9gzlA9JQ=";
             };
+            cargoHash = "sha256-1bEEQu7KOcSMAB6QdoYD8cgEe6mfF/HswNSHcREMxio=";
           });
 
       # Keep OpenSCAD's source provenance explicit. This revision currently
