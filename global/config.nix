@@ -73,7 +73,7 @@ in
   ];
 
   system.activationScripts = {
-    extraActivation.text = ''
+    extraActivation.text = /*bash*/''
       # ${pkgs.defaultbrowser}/bin/defaultbrowser firefox
       ln -sfn "${pkgs.jdk8}/Library/Java/JavaVirtualMachines/zulu-8.jdk" "/Library/Java/JavaVirtualMachines/"
       ln -sfn "${pkgs.jdk11}/Library/Java/JavaVirtualMachines/zulu-11.jdk" "/Library/Java/JavaVirtualMachines/"

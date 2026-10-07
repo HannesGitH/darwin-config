@@ -126,7 +126,7 @@
     nix-direnv.enable = true;
   };
 
-  home.file.".config/direnv/direnv.toml".text = ''
+  home.file.".config/direnv/direnv.toml".text = /*toml*/''
     [global]
 
     [whitelist]
@@ -152,7 +152,6 @@
       # pod="arch -x86_64 pod";
 
       gmud = "git fetch upstream && git merge upstream/dev || git mergetool";
-      gnew = "echo 'deprecated, use gneu'; gneu"; # defined below
     };
     #histSize = 10000;
     #histFile = "$HOME/.zsh_history";
@@ -173,7 +172,7 @@
         src = inputs.zsh-nix-shell;
       }
     ];
-    initContent = ''
+    initContent = /*bash*/''
       eval "$(/opt/homebrew/bin/brew shellenv)"
       export PATH="$HOME/fvm/default/bin:$PATH"
 
@@ -206,6 +205,14 @@
         g fetch origin &&
         gsw -c "$1" origin/dev --no-track;
       }
+      # git merge upstream prompt push
+      gmup() {
+        if g fetch upstream && g merge upstream/dev; then
+          g push
+        else
+          echo "merge conflicts, please resolve and push when done"
+        fi
+      }
     '';
   };
   programs.git = {
@@ -225,7 +232,7 @@
       merge = {
         mergiraf = {
           name = "mergiraf";
-          driver = "mergiraf merge --git %O %A %B -s %S -x %X -y %Y -p %P -l %L";
+          driver = /*bash*/"mergiraf merge --git %O %A %B -s %S -x %X -y %Y -p %P -l %L";
         };
         conflictstyle = "diff3";
       };
