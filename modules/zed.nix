@@ -466,20 +466,34 @@ in
             nix_nix = nixGrammar;
           };
         }).overrideAttrs
-          (_: {
-            # Pin version + cargoHash to the fork too: otherwise both are
-            # inherited from upstream's generated `nix` entry and break
-            # (hash mismatch) whenever a `nix-zed-extensions` bump changes
-            # upstream's Cargo deps. Bump these together with `rev`.
-            version = "0.1.4";
-            src = pkgs.fetchFromGitHub {
-              owner = "sebb3";
-              repo = "nix";
-              rev = "926b7150ebba7631cd1ba9227445a3d7e7ec4665";
-              hash = "sha256-ukS2q0nt8kG5xMc+WiBHZMu66mkBjt9iAnj9gzlA9JQ=";
-            };
-            cargoHash = "sha256-1bEEQu7KOcSMAB6QdoYD8cgEe6mfF/HswNSHcREMxio=";
-          });
+          (
+            old:
+            let
+              src = pkgs.fetchFromGitHub {
+                owner = "sebb3";
+                repo = "nix";
+                rev = "926b7150ebba7631cd1ba9227445a3d7e7ec4665";
+                hash = "sha256-ukS2q0nt8kG5xMc+WiBHZMu66mkBjt9iAnj9gzlA9JQ=";
+              };
+              cargoHash = "sha256-1bEEQu7KOcSMAB6QdoYD8cgEe6mfF/HswNSHcREMxio=";
+            in
+            {
+              # Pin version + cargo deps to the fork too: otherwise both are
+              # inherited from upstream's generated `nix` entry and break
+              # (hash mismatch) whenever a `nix-zed-extensions` bump changes
+              # upstream's Cargo deps. Bump these together with `rev`.
+              # `cargoDeps` must be rebuilt explicitly: buildRustPackage
+              # derives it once from the original args, so overriding
+              # `cargoHash` alone never reaches the vendor fetch.
+              version = "0.1.4";
+              inherit src cargoHash;
+              cargoDeps = pkgs.rustPlatform.fetchCargoVendor {
+                inherit src;
+                name = "${old.pname}-0.1.4";
+                hash = cargoHash;
+              };
+            }
+          );
 
       # Keep OpenSCAD's source provenance explicit. This revision currently
       # matches the upstream extension byte-for-byte, but it is fetched from
