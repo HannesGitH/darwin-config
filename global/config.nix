@@ -64,7 +64,18 @@ in
     # their Developer ID signature and with it a stable TCC identity across
     # rebuilds (plus 1Password, iCloud Passwords and Touch ID). The wrapper only
     # sets LD_LIBRARY_PATH, which does nothing on Darwin anyway.
-    firefox-bin-unwrapped
+    #
+    # Since 158 Mozilla's .dmg uses LZMA-compressed blocks, which undmg can't
+    # decode ("error writing"); 7zz can, and keeps the signature intact.
+    (firefox-bin-unwrapped.overrideAttrs (old: {
+      nativeBuildInputs = (lib.remove undmg old.nativeBuildInputs or [ ]) ++ [ _7zz ];
+      unpackPhase = ''
+        runHook preUnpack
+        7zz x -snld -y "$src" >/dev/null
+        mv */Firefox.app .
+        runHook postUnpack
+      '';
+    }))
 
     (inputs.mergiraf.packages.${pkgs.system}.default.overrideAttrs (old: {
       doCheck = false;
