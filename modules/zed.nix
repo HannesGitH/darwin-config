@@ -87,6 +87,9 @@ in
           (`zed-industries/zed`, pinned by `flake.lock`). Rides upstream's
           nightly tip at the cost of compiling Zed locally -- see the
           aarch64-darwin build workarounds on `package` below.
+
+        Either way the binary is called `zed` (nixpkgs' `zeditor` is
+        renamed).
       '';
     };
 
@@ -650,7 +653,25 @@ in
               })
             )
           else
-            inputs.nixpkgsunstable.legacyPackages.${pkgs.system}.zed-editor;
+            # nixpkgs ships the CLI as `zeditor` (to dodge a name clash with
+            # an unrelated `zed`). We always want it called `zed`, whatever
+            # the channel, so re-expose it under that name. A symlinkJoin
+            # (rather than overrideAttrs) keeps the cache hit; passthru is
+            # carried over so home-manager still finds `remote_server`.
+            let
+              unwrapped = inputs.nixpkgsunstable.legacyPackages.${pkgs.system}.zed-editor;
+            in
+            pkgs.symlinkJoin {
+              name = "zed-editor-${unwrapped.version}";
+              paths = [ unwrapped ];
+              postBuild = ''
+                mv $out/bin/zeditor $out/bin/zed
+              '';
+              passthru = unwrapped.passthru or { };
+              meta = unwrapped.meta // {
+                mainProgram = "zed";
+              };
+            };
         enable = true;
         # Registry fallback only -- the source-built ids are installed via
         # `programs.zed-editor-extensions` below. See the resolver in the

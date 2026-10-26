@@ -5,20 +5,12 @@
 }:
 
 # Wires up the per-user merge tool for git, choosing between Zed and
-# Cursor and -- when Zed is selected -- routing to whichever binary the
-# active `myModules.zed.channel` package exposes:
+# Cursor. The Zed binary is always `zed` regardless of
+# `myModules.zed.channel` (modules/zed.nix renames nixpkgs' `zeditor`).
 #
-# - nixpkgs `zed-editor` ships its CLI as `zeditor` to dodge the ncurses
-#   `zed` name collision (so the `unstable` channel resolves to a
-#   `bin/zeditor` in /nix/store).
-# - The upstream `zed-industries/zed` flake keeps the native `zed` CLI
-#   name (so the `nightly` channel resolves to a `bin/zed`).
-#
-# Both packages set `meta.mainProgram` correctly, so `lib.getExe` picks
-# the right binary by absolute store path. That avoids depending on the
-# user's PATH inside the mergetool, which git's `git-mergetool--lib`
-# scrubs (this used to manifest as `zeditor: command not found` when
-# launching mergetool from a fresh shell).
+# `lib.getExe` resolves it by absolute store path. That avoids depending
+# on the user's PATH inside the mergetool, which git's
+# `git-mergetool--lib` scrubs.
 #
 # Zed still lacks 3-way merge editing
 # (https://github.com/zed-industries/zed/issues/34813), which is why
@@ -42,8 +34,7 @@ in
       default = "zed";
       description = ''
         Which editor `git mergetool` should launch by default. `zed`
-        follows whichever package `myModules.zed.channel` selects
-        (the binary is `zed` on `nightly`, `zeditor` on `unstable`).
+        follows whichever package `myModules.zed.channel` selects.
         `cursor` and `vscode` invoke the respective CLIs and require
         those tools to be on PATH.
       '';

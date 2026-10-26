@@ -222,8 +222,7 @@
       init.defaultBranch = "main";
       push.autoSetupRemote = true;
       # Mergetool entries (vscode/cursor/zed) and `merge.tool` live in
-      # `modules/git.nix`, which picks the right zed binary name based on
-      # `myModules.zed.channel` and exposes `myModules.git.mergetool` for
+      # `modules/git.nix`, which exposes `myModules.git.mergetool` for
       # per-user overrides.
       # on a new machine, run `mergiraf languages --gitattributes >> ~/.gitattributes`
       core.attributesfile = "~/.gitattributes";
